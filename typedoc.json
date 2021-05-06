@@ -1,0 +1,7 @@
+{
+  "entryPoints": [
+    "src/index.ts"
+  ],
+  "out": "docs",
+  "name": "Discord Speech Recognition Bot"
+}
