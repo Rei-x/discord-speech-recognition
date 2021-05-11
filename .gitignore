@@ -1,6 +1,9 @@
 node_modules
-build
+dist
 docs
-log.txt
 config.json
-src/recordings
+coverage
+.vscode
+.nyc_output
+recordings
+tsconfig.tsbuildinfo

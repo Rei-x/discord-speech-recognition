@@ -3,5 +3,9 @@
     "src/index.ts"
   ],
   "out": "docs",
-  "name": "Discord Speech Recognition Bot"
+  "name": "Discord Speech Recognition Extension",
+  "plugin": [
+    "typedoc-plugin-as-member-of"
+  ],
+  "excludePrivate": true
 }

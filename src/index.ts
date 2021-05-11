@@ -1,7 +1,6 @@
-export { Alexa, Song } from './bot/alexa';
-export { AlexaMaker } from './bot/alexaMaker';
-export { exit } from './utils/commands';
-export { getVideoFromQuery } from './utils/youtube';
-export { getImageURLFromQuery } from './utils/imgur';
-export { DebugOptions, Debug } from './bot/debug';
-export { commandCallback } from './bot/alexaMaker';
+export {default as DiscordSR} from './bot/discordSR';
+export {speech, voiceJoin} from './events';
+export {VoiceMessage} from './bot/voiceMessage';
+export {resolveSpeechWithGoogleSpeechV2, GoogleSpeechV2Options} from './speechRecognition/googleV2';
+export {resolveSpeechWithWITAI, WITAIOptions} from './speechRecognition/witAI';
+export {wavUrlToBuffer, getDurationFromStereoBuffer as getDurationFromBuffer} from './utils/audio';

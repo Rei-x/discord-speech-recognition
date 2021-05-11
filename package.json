@@ -1,17 +1,22 @@
 {
-	"name": "discord-speech-recognition-bot",
+	"name": "discord-sr",
 	"version": "1.0.0",
-	"description": "Framework for making discord speech recognition bots.",
-	"main": "./src/index.js",
-	"typings": "./typings",
+	"description": "Extension for making discord speech recognition bots.",
+	"main": "./src/index.ts",
+	"typings": "./src/types",
 	"scripts": {
 		"dev": "nodemon build/src/index.js",
 		"watch": "tsc -w",
 		"doc": "typedoc",
-		"build": "tsc",
-		"start": "node build/src/index.js"
+		"build": "npm test && tsc -b",
+		"test": "ts-mocha --exit --require source-map-support/register tests/**/*.test.ts ",
+		"coverage": "nyc npm run test"
 	},
-	"keywords": [],
+	"keywords": [
+		"discord.js",
+		"discord",
+		"speechrecognition"
+	],
 	"author": "Rei666",
 	"license": "MIT",
 	"engines": {
@@ -19,26 +24,36 @@
 	},
 	"dependencies": {
 		"@discordjs/opus": "^0.3.2",
+		"axios": "^0.21.1",
+		"chai-as-promised": "^7.1.1",
 		"discord-tts": "^1.0.3",
 		"discord.js": "^12.3.1",
-		"mic": "^2.1.2",
-		"node-cron": "^3.0.0",
-		"stream-length": "^1.0.2",
-		"utf8": "^3.0.0",
-		"vosk": "^0.3.25",
-		"wav": "^1.0.2",
-		"ytdl-core": "^4.7.0",
-		"ytsr": "^3.5.0"
+		"node-witai-speech": "^1.0.2",
+		"request": "^2.88.2",
+		"underscore": "^1.13.1",
+		"wav": "^1.0.2"
 	},
 	"devDependencies": {
+		"@istanbuljs/nyc-config-typescript": "^1.0.1",
+		"@types/chai": "^4.2.18",
+		"@types/chai-as-promised": "^7.1.4",
+		"@types/expect": "^24.3.0",
+		"@types/mocha": "^8.2.2",
 		"@types/node": "^15.0.2",
-		"@types/node-cron": "^2.0.3",
-		"eslint": "^7.25.0",
+		"@types/wav": "^1.0.0",
+		"@typescript-eslint/eslint-plugin": "^4.23.0",
+		"@typescript-eslint/parser": "^4.23.0",
+		"chai": "^4.3.4",
+		"eslint": "^7.26.0",
 		"eslint-config-google": "^0.14.0",
-		"jsdoc": "^3.6.6",
+		"mocha": "^8.4.0",
 		"nodemon": "^2.0.7",
+		"nyc": "^15.1.0",
+		"source-map-support": "^0.5.19",
+		"ts-mocha": "^8.0.0",
 		"ts-node": "^9.1.1",
 		"typedoc": "^0.20.36",
+		"typedoc-plugin-as-member-of": "^1.0.2",
 		"typescript": "^4.2.4"
 	}
 }
