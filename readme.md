@@ -10,7 +10,7 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ```javascript
 const { Client, Message } = require('discord.js');
-const { DiscordSR } = require('../build/src/index');
+const { DiscordSR } = require('discord-sr');
 
 const client = new Client();
 const discordSR = new DiscordSR(client);

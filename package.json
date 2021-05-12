@@ -2,8 +2,8 @@
 	"name": "discord-sr",
 	"version": "1.0.0",
 	"description": "Extension for making discord speech recognition bots.",
-	"main": "./src/index.ts",
-	"typings": "./src/types",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"scripts": {
 		"dev": "nodemon build/src/index.js",
 		"watch": "tsc -w",
@@ -25,8 +25,6 @@
 	"dependencies": {
 		"@discordjs/opus": "^0.3.2",
 		"axios": "^0.21.1",
-		"chai-as-promised": "^7.1.1",
-		"discord-tts": "^1.0.3",
 		"discord.js": "^12.3.1",
 		"node-witai-speech": "^1.0.2",
 		"request": "^2.88.2",
@@ -44,6 +42,7 @@
 		"@typescript-eslint/eslint-plugin": "^4.23.0",
 		"@typescript-eslint/parser": "^4.23.0",
 		"chai": "^4.3.4",
+		"chai-as-promised": "^7.1.1",
 		"eslint": "^7.26.0",
 		"eslint-config-google": "^0.14.0",
 		"mocha": "^8.4.0",
