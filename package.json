@@ -9,7 +9,7 @@
 		"watch": "tsc -w",
 		"doc": "typedoc",
 		"prebuild": "npm run lint && npm run coverage",
-		"build":  "tsc --clean",
+		"build":  "tsc",
 		"test": "ts-mocha --exit --require source-map-support/register tests/**/*.test.ts ",
 		"coverage": "nyc npm run test",
 		"lint": "eslint src/ && tsc --noEmit",
@@ -70,6 +70,6 @@
 		"typescript": "^4.2.4"
 	},
 	"files": [
-		"dist/**/*"
+		"dist/"
 	]
 }
