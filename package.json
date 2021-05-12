@@ -1,6 +1,6 @@
 {
-	"name": "discord-sr",
-	"version": "1.0.1",
+	"name": "discord-speech-recognition",
+	"version": "1.0.0",
 	"description": "Extension for making discord speech recognition bots.",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -36,6 +36,7 @@
 		"@discordjs/opus": "^0.3.3",
 		"axios": "^0.21.1",
 		"discord.js": "^12.5.3",
+		"ffmpeg-static": "^4.3.0",
 		"node-witai-speech": "^1.0.2",
 		"request": "^2.88.2",
 		"underscore": "^1.13.1",
