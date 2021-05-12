@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {Writable} from 'stream';
-import wav from 'wav';
+import {Reader} from 'wav';
 /**
  * Convert stereo audio buffer to mono
  * @param input Buffer of stereo audio
@@ -31,7 +31,7 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
     },
   });
 
-  const reader = new wav.Reader();
+  const reader = new Reader();
   reader.on('format', () => {
     reader.pipe(pcmDataStream);
   });
