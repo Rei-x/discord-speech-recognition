@@ -5,14 +5,16 @@
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"dev": "nodemon build/src/index.js",
+		"dev": "nodemon dist/index.js",
 		"watch": "tsc -w",
 		"doc": "typedoc",
-		"build": "tsc",
+		"prebuild": "npm run lint && npm run coverage",
+		"build":  "tsc --clean",
 		"test": "ts-mocha --exit --require source-map-support/register tests/**/*.test.ts ",
 		"coverage": "nyc npm run test",
-		"prepare": "npm run build",
-		"prepublishOnly": "npm run coverage"
+		"lint": "eslint src/ && tsc --noEmit",
+		"prepare": "husky install",
+		"prepublishOnly": "npm run build"
 	},
 	"repository": {
 		"type": "git",
@@ -56,6 +58,7 @@
 		"chai-as-promised": "^7.1.1",
 		"eslint": "^7.26.0",
 		"eslint-config-google": "^0.14.0",
+		"husky": "^6.0.0",
 		"mocha": "^8.4.0",
 		"nodemon": "^2.0.7",
 		"nyc": "^15.1.0",
