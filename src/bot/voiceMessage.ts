@@ -3,17 +3,19 @@ import {Client, Guild, GuildMember, User, VoiceChannel} from 'discord.js';
 interface VoiceMessageData {
     duration: number;
     audioBuffer: Buffer;
-    content: string,
+    content?: string,
+    error?: string,
     author: User,
 }
 
 export class VoiceMessage {
     channel: VoiceChannel;
-    content: string;
+    content?: string;
     author: User;
     duration: number;
     audioBuffer: Buffer;
     client: Client;
+    error?: string;
     /**
      * Voice message, it is emited `speech` event
      * @param client
@@ -26,7 +28,8 @@ export class VoiceMessage {
       this.author = data.author;
       this.audioBuffer = data.audioBuffer;
       this.duration = data.duration;
-      this.content = data.content;
+      this.content = data?.content;
+      this.error = data?.error;
     }
     get member(): GuildMember|null {
       return this.guild ? this.guild.member(this.author) || null : null;
