@@ -1,6 +1,6 @@
 {
 	"name": "discord-sr",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Extension for making discord speech recognition bots.",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -8,10 +8,16 @@
 		"dev": "nodemon build/src/index.js",
 		"watch": "tsc -w",
 		"doc": "typedoc",
-		"build": "npm test && tsc -b",
+		"build": "tsc",
 		"test": "ts-mocha --exit --require source-map-support/register tests/**/*.test.ts ",
-		"coverage": "nyc npm run test"
+		"coverage": "nyc npm run test",
+		"prepare": "npm run build",
+		"prepublishOnly": "npm run coverage"
 	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Rei-666/discord-speech-recognition.git"
+	  },
 	"keywords": [
 		"discord.js",
 		"discord",
@@ -19,6 +25,10 @@
 	],
 	"author": "Rei666",
 	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Rei-666/discord-speech-recognition/issues"
+	  },
+	"homepage": "https://github.com/Rei-666/discord-speech-recognition",
 	"engines": {
 		"node": ">=12.0.0"
 	},
@@ -54,5 +64,6 @@
 		"typedoc": "^0.20.36",
 		"typedoc-plugin-as-member-of": "^1.0.2",
 		"typescript": "^4.2.4"
-	}
+	},
+	"files": ["dist/**/*"]
 }
