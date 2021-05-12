@@ -55,14 +55,17 @@ export default class DiscordSR {
 
       audioStream.on('end', async () => {
         const voiceMessage = await this.createVoiceMessage(bufferData, user, connection);
-        this.client.emit('speech', voiceMessage);
+        if (voiceMessage) this.client.emit('speech', voiceMessage);
       });
     });
   }
 
-  private async createVoiceMessage(bufferData: Uint8Array[], user: User, connection: VoiceConnection): Promise<VoiceMessage> {
+  private async createVoiceMessage(bufferData: Uint8Array[], user: User, connection: VoiceConnection): Promise<VoiceMessage | void> {
     const stereoBuffer = Buffer.concat(bufferData);
     const duration = getDurationFromStereoBuffer(stereoBuffer);
+
+    if (duration < 1 || duration > 19) return;
+
     const monoBuffer = convertStereoToMono(stereoBuffer);
     const text = await this.speechOptions.speechRecognition(monoBuffer, this.speechOptions);
     const voiceMessage = new VoiceMessage(this.client, {
