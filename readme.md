@@ -8,7 +8,7 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ## Docs
 
-https://discordsr.netlify.app/
+<https://discordsr.netlify.app/>
 
 ## Example usage
 
