@@ -5,7 +5,6 @@
     ".ts"
   ],
   "include": [
-    "**/*.js",
     "**/*.ts"
   ],
   "exclude": [
