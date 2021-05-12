@@ -67,12 +67,20 @@ export default class DiscordSR {
     if (duration < 1 || duration > 19) return;
 
     const monoBuffer = convertStereoToMono(stereoBuffer);
-    const text = await this.speechOptions.speechRecognition(monoBuffer, this.speechOptions);
+
+    let content; let error;
+    try {
+      content = await this.speechOptions.speechRecognition(monoBuffer, this.speechOptions);
+    } catch (e) {
+      error = e;
+    }
+
     const voiceMessage = new VoiceMessage(this.client, {
       author: user,
       duration: duration,
       audioBuffer: stereoBuffer,
-      content: text,
+      content,
+      error,
     }, connection.channel);
     return voiceMessage;
   }
