@@ -12,6 +12,7 @@ export declare function voiceJoin(connection: VoiceConnection): void;
  * Emitted when someone ends talking in channel
  * @asMemberOf DiscordSR
  * @param voiceMessage
+ * @event
  */
 export declare function speech(voiceMessage: VoiceMessage): void;
 
