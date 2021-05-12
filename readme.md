@@ -6,6 +6,10 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 `npm install discord-sr`
 
+## Docs
+
+https://discordsr.netlify.app/
+
 ## Example usage
 
 ```javascript
