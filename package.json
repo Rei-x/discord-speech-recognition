@@ -17,7 +17,7 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Rei-666/discord-speech-recognition.git"
-	  },
+	},
 	"keywords": [
 		"discord.js",
 		"discord",
@@ -27,15 +27,15 @@
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/Rei-666/discord-speech-recognition/issues"
-	  },
-	"homepage": "https://github.com/Rei-666/discord-speech-recognition",
+	},
+	"homepage": "https://discordsr.netlify.app/",
 	"engines": {
 		"node": ">=12.0.0"
 	},
 	"dependencies": {
-		"@discordjs/opus": "^0.3.2",
+		"@discordjs/opus": "^0.3.3",
 		"axios": "^0.21.1",
-		"discord.js": "^12.3.1",
+		"discord.js": "^12.5.3",
 		"node-witai-speech": "^1.0.2",
 		"request": "^2.88.2",
 		"underscore": "^1.13.1",
@@ -65,5 +65,7 @@
 		"typedoc-plugin-as-member-of": "^1.0.2",
 		"typescript": "^4.2.4"
 	},
-	"files": ["dist/**/*"]
+	"files": [
+		"dist/**/*"
+	]
 }
