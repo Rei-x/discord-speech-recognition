@@ -39,9 +39,7 @@
 		"axios": "^0.21.1",
 		"discord.js": "^12.5.3",
 		"ffmpeg-static": "^4.3.0",
-		"node-witai-speech": "^1.0.2",
-		"request": "^2.88.2",
-		"underscore": "^1.13.1",
+		"node-fetch": "^2.6.1",
 		"wav": "^1.0.2"
 	},
 	"devDependencies": {
@@ -51,6 +49,7 @@
 		"@types/expect": "^24.3.0",
 		"@types/mocha": "^8.2.2",
 		"@types/node": "^15.0.2",
+		"@types/node-fetch": "^2.5.10",
 		"@types/wav": "^1.0.0",
 		"@typescript-eslint/eslint-plugin": "^4.23.0",
 		"@typescript-eslint/parser": "^4.23.0",
