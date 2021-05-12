@@ -4,7 +4,7 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ## Installation
 
-`npm install discord-sr`
+`npm i discord-speech-recognition`
 
 ## Docs
 
@@ -14,7 +14,7 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ```javascript
 const { Client, Message } = require('discord.js');
-const { DiscordSR } = require('discord-sr');
+const { DiscordSR } = require('discord-speech-recognition');
 
 const client = new Client();
 const discordSR = new DiscordSR(client);
