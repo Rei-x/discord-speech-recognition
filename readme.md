@@ -20,7 +20,7 @@ const client = new Client();
 const discordSR = new DiscordSR(client);
 
 client.on('message', msg => {
-  if (msg.member.voice.channel) {
+  if (msg.member?.voice.channel) {
     msg.member.voice.channel.join();
   }
 })

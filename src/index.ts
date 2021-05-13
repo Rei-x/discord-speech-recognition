@@ -1,4 +1,4 @@
-export {default as DiscordSR} from './bot/discordSR';
+export {default as DiscordSR, speechRecognition, DiscordSROptions} from './bot/discordSR';
 export {speech, voiceJoin} from './events';
 export {VoiceMessage} from './bot/voiceMessage';
 export {resolveSpeechWithGoogleSpeechV2, GoogleSpeechV2Options} from './speechRecognition/googleV2';
