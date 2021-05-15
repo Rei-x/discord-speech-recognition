@@ -10,7 +10,7 @@ export interface GoogleSpeechV2Options {
 
 /**
  * Performs speech recognition using the Google Speech Recognition API V2
- * @param audioBuffer PCM mono audio with 48k bitrate
+ * @param audioBuffer PCM mono audio with 48kHz
  * @param options
  * @returns Recognized text from speech
  */
