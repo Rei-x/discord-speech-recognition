@@ -45,7 +45,7 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
   });
 }
 
-export function getDurationFromStereoBuffer(buffer: Buffer): number {
-  const duration = buffer.length / 48000 / 4;
+export function getDurationFromMonoBuffer(buffer: Buffer): number {
+  const duration = buffer.length / 48000 / 2;
   return duration;
 }

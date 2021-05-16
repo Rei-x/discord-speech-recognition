@@ -2,7 +2,6 @@ import {DiscordSR} from '../src/index';
 import {BOT_TOKEN} from '../config.json';
 import {Client, MessageEmbed} from 'discord.js';
 import {VoiceMessage} from '../src/bot/voiceMessage';
-import wav from 'wav';
 
 const client = new Client();
 const discordsr = new DiscordSR(client);
@@ -25,12 +24,7 @@ client.on('speech', (message: VoiceMessage) => {
         .addField('Duration:', message.duration + 's')
         .addField('Guild:', message.guild);
 
-    const outputFile = new wav.FileWriter('./test.wav', {
-      sampleRate: 48000,
-      channels: 2,
-    });
-    outputFile.write(message.audioBuffer);
-    outputFile.end();
+    message.saveToFile('./test.wav');
 
     message.author.send(embed);
     message.author.send({files: ['./test.wav']});

@@ -5,12 +5,12 @@ import axios, {AxiosRequestConfig} from 'axios';
  */
 export interface GoogleSpeechV2Options {
   key?: string;
-  lang: string;
+  lang?: string;
 }
 
 /**
  * Performs speech recognition using the Google Speech Recognition API V2
- * @param audioBuffer PCM mono audio with 48k bitrate
+ * @param audioBuffer PCM mono audio with 48kHz
  * @param options
  * @returns Recognized text from speech
  */
@@ -25,6 +25,7 @@ export async function resolveSpeechWithGoogleSpeechV2(audioBuffer: Buffer, optio
 /**
  * If API key is not specified uses generic key that works out of the box.
  * If language is not specified uses ``"en-US"``
+ * See [python speech recognition package](https://github.com/Uberi/speech_recognition/blob/c89856088ad81d81d38be314e3db50905481c5fe/speech_recognition/__init__.py#L850) for more details.
  * @param options
  * @returns Request config for {@link resolveSpeechWithGoogleSpeechV2}
  */
