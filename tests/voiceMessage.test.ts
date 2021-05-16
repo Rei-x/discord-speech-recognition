@@ -26,6 +26,9 @@ describe('Voice message', function() {
     const duration = getDurationFromMonoBuffer(voiceMessage.audioBuffer);
     expect(duration.toPrecision(3)).to.be.equal('2.09');
   });
+  after(function() {
+    fs.unlinkSync(filename);
+  });
 });
 
 async function readFileToAudioBuffer(filename: fs.PathLike): Promise<Buffer> {
