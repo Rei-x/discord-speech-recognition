@@ -1,6 +1,0 @@
-{
-    "BOT_TOKEN": "Put here token of bot, that you want to test",
-    "TESTBOT_TOKEN": "Here goes token of bot that will test the other bot",
-    "GUILD_ID": "Id of the guild that two of the bots are in",
-    "WITAI_KEY": "Server api key for wit.ai"
-}

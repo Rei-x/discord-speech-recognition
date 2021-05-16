@@ -2,7 +2,7 @@
 import chai from 'chai';
 import chaiAsPRosmied from 'chai-as-promised';
 import {resolveSpeechWithWITAI, wavUrlToBuffer} from '../src/index';
-import {WITAI_KEY} from './config.json';
+import {WITAI_KEY} from './env';
 
 chai.use(chaiAsPRosmied);
 const expect = chai.expect;

@@ -3,8 +3,9 @@ import {expect} from 'chai';
 import {Client, Guild, VoiceChannel} from 'discord.js';
 import {TestManager} from './testUtils';
 import {DiscordSR, resolveSpeechWithWITAI, VoiceMessage} from '../src/index';
-import {BOT_TOKEN, TESTBOT_TOKEN, GUILD_ID} from './config.json';
+import {BOT_TOKEN, TESTBOT_TOKEN, GUILD_ID} from './env';
 import {once} from 'events';
+
 
 const speechRecognitionSamples = [
   ['https://cdn.discordapp.com/attachments/838767598778843149/841292361291923487/ttsMP3.com_VoiceText_2021-5-10_14_35_18.mp3', 'alexa play despacito'],
@@ -29,7 +30,15 @@ describe('DiscordSR tests', function() {
     });
   });
   describe('Test bot', function() {
-    const tm = new TestManager(BOT_TOKEN, TESTBOT_TOKEN);
+    let tm: TestManager;
+    before(function() {
+      tm = new TestManager(BOT_TOKEN, TESTBOT_TOKEN);
+      return new Promise<void>((resolve) => {
+        tm.once('ready', () => {
+          resolve();
+        });
+      });
+    });
 
     it('Test config', function() {
       expect(TESTBOT_TOKEN, 'Test bot token not specified').to.be.string;
@@ -39,24 +48,22 @@ describe('DiscordSR tests', function() {
 
     it('Check if test bot and main bot are in the same guild', async function() {
       return new Promise((resolve, reject) => {
-        tm.once('ready', () => {
-          const testClientGuild: Guild = tm.testClient.guilds.cache.get(GUILD_ID);
-          const clientGuild = tm.client.guilds.cache.get(GUILD_ID);
-          try {
-            expect(testClientGuild, 'Test bot not in guild').to.be.an.instanceOf(Guild);
-            expect(clientGuild, 'Main bot not in guild').to.be.an.instanceOf(Guild);
-            expect(testClientGuild.id).to.be.equal(clientGuild.id);
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        });
+        const testClientGuild: Guild = tm.testClient.guilds.cache.get(GUILD_ID);
+        const clientGuild = tm.client.guilds.cache.get(GUILD_ID);
+        try {
+          expect(testClientGuild, 'Test bot not in guild').to.be.an.instanceOf(Guild);
+          expect(clientGuild, 'Main bot not in guild').to.be.an.instanceOf(Guild);
+          expect(testClientGuild.id).to.be.equal(clientGuild.id);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
       });
     },
     );
     describe('Events', function() {
       before(function() {
-        this.timeout(8000);
+        this.timeout(6000);
         return tm.setTestVoiceChannel(GUILD_ID);
       });
 
