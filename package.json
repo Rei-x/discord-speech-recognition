@@ -55,6 +55,7 @@
 		"@typescript-eslint/parser": "^4.23.0",
 		"chai": "^4.3.4",
 		"chai-as-promised": "^7.1.1",
+		"dotenv": "^9.0.2",
 		"eslint": "^7.26.0",
 		"eslint-config-google": "^0.14.0",
 		"husky": "^6.0.0",

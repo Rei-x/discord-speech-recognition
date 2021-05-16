@@ -5,12 +5,12 @@ import {DiscordSR} from '../src';
 
 class WaitForBots extends EventEmitter {
     bots: Client[];
-    readyBots: Client[];
+    readyBots: Set<string>;
     callback: CallableFunction;
     constructor(botsArray: Client[], callback) {
       super();
       this.bots = botsArray;
-      this.readyBots = [];
+      this.readyBots = new Set();
       this.bots.forEach((client) => {
         client.on('ready', () => {
           this.setReady(client);
@@ -23,7 +23,8 @@ class WaitForBots extends EventEmitter {
      * @param client
      */
     setReady(client: Client) {
-      const numberOfReadyClients = this.readyBots.push(client);
+      const numberOfReadyClients = this.readyBots.add(client.user.username).size;
+
       if (numberOfReadyClients == this.bots.length) {
         this.callback();
       }
