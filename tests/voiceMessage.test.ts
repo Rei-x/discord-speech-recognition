@@ -1,3 +1,4 @@
+/* eslint-disable no-invalid-this */
 import {expect} from 'chai';
 import {getDurationFromMonoBuffer, VoiceMessage, wavUrlToBuffer} from '../src';
 import {data} from './sampleData.json';
@@ -8,6 +9,7 @@ import {Writable} from 'stream';
 describe('Voice message', function() {
   let filename: string; let audioBuffer: Buffer; let voiceMessage: VoiceMessage;
   before(async function() {
+    this.timeout(6000);
     filename = './test.wav';
     audioBuffer = await wavUrlToBuffer(data[0].url);
     voiceMessage = new VoiceMessage(undefined, {
