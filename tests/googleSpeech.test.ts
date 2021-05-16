@@ -1,3 +1,4 @@
+/* eslint-disable no-invalid-this */
 import {resolveSpeechWithGoogleSpeechV2, wavUrlToBuffer} from '../src/index';
 import chaiAsPRomised from 'chai-as-promised';
 import chai from 'chai';
@@ -10,6 +11,7 @@ const speechRecognitionSamples = [['https://cdn.discordapp.com/attachments/83876
 describe('Google Speech V2 test', function() {
   const [url, text] = speechRecognitionSamples[0];
   it('Speech recognition', async function() {
+    this.timeout(6000);
     const audioBuffer = await wavUrlToBuffer(url);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
     expect(response.toLowerCase()).to.equal(text);
