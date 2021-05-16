@@ -2,7 +2,7 @@
 import {Client, User, VoiceConnection} from 'discord.js';
 
 import {resolveSpeechWithGoogleSpeechV2} from '../speechRecognition/googleV2';
-import {convertStereoToMono, getDurationFromStereoBuffer} from '../utils/audio';
+import {convertStereoToMono, getDurationFromMonoBuffer} from '../utils/audio';
 import {VoiceMessage} from './voiceMessage';
 
 /**
@@ -84,11 +84,11 @@ export default class DiscordSR {
 
   private async createVoiceMessage(bufferData: Uint8Array[], user: User, connection: VoiceConnection): Promise<VoiceMessage | void> {
     const stereoBuffer = Buffer.concat(bufferData);
-    const duration = getDurationFromStereoBuffer(stereoBuffer);
+    const monoBuffer = convertStereoToMono(stereoBuffer);
+
+    const duration = getDurationFromMonoBuffer(stereoBuffer);
 
     if (duration < 1 || duration > 19) return;
-
-    const monoBuffer = convertStereoToMono(stereoBuffer);
 
     let content; let error;
     try {
