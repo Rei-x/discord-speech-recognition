@@ -28,8 +28,6 @@ export class VoiceMessage {
    * If there was any error during handling speech event, this will be set
    */
   error?: string;
-  guild: Guild;
-  member: GuildMember | null;
   /**
    * Voice message, it is emited `speech` event
    * @param client
@@ -45,8 +43,6 @@ export class VoiceMessage {
     this.duration = data.duration;
     this.content = data?.content;
     this.error = data?.error;
-    this.guild = this.channel.guild;
-    this.member = this.guild.member(this.author);
   }
   /**
    * Saves audio to .wav file
@@ -55,9 +51,15 @@ export class VoiceMessage {
   saveToFile(filename: string): void {
     const outputFile = new wav.FileWriter(filename, {
       sampleRate: 48000,
-      channels: 2,
+      channels: 1,
     });
     outputFile.write(this.audioBuffer);
     outputFile.end();
+  }
+  get member(): GuildMember | null {
+    return this.guild.member(this.author);
+  }
+  get guild(): Guild {
+    return this.channel.guild;
   }
 }
