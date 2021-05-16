@@ -22,7 +22,7 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
     method: 'GET',
     responseType: 'stream',
   });
-
+  console.log('Response status: ' + response.status);
   const buffs: Uint8Array[] = [];
   const pcmDataStream = new Writable({
     write(chunk, _encoding, callback) {

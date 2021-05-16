@@ -11,7 +11,7 @@ const speechRecognitionSamples = [['https://cdn.discordapp.com/attachments/83876
 describe('Google Speech V2 test', function() {
   const [url, text] = speechRecognitionSamples[0];
   it('Speech recognition', async function() {
-    this.timeout(8000);
+    this.timeout(16000);
     const audioBuffer = await wavUrlToBuffer(url);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
     expect(response.toLowerCase()).to.equal(text);
