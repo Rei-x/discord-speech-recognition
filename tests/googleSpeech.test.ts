@@ -14,6 +14,7 @@ describe('Google Speech V2 test', function() {
     this.timeout(16000);
     const audioBuffer = await wavUrlToBuffer(url);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
+    if (process.env.DEBUG) console.log('Speech recognized');
     expect(response.toLowerCase()).to.equal(text);
   });
   it('Bad request data throws error', function() {
