@@ -8,7 +8,6 @@
 		"dev": "nodemon dist/index.js",
 		"watch": "tsc -w",
 		"doc": "typedoc",
-		"prebuild": "npm run lint && npm run coverage",
 		"build": "tsc",
 		"test": "ts-mocha --exit --require source-map-support/register tests/**/*.test.ts ",
 		"coverage": "nyc npm run test",
