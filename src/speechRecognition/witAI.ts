@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export interface WITAIOptions {
-  key: string
+  key?: string
 }
 
 interface witaiGoodResponse {
