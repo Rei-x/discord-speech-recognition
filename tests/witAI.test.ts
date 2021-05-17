@@ -8,7 +8,7 @@ chai.use(chaiAsPRosmied);
 const expect = chai.expect;
 const speechRecognitionSamples = [['https://cdn.discordapp.com/attachments/838767598778843149/841360475631779861/Hello_my_name_is_John.wav', 'hello my name is john']];
 
-describe('witAI test', function() {
+describe.only('witAI test', function() {
   this.timeout(16000);
   const [url, text] = speechRecognitionSamples[0];
   it('Speech recognition', async function() {
