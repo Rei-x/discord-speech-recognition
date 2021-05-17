@@ -12,7 +12,9 @@ describe.only('witAI test', function() {
   this.timeout(16000);
   const [url, text] = speechRecognitionSamples[0];
   it('Speech recognition', async function() {
+    if (process.env.DEBUG) console.log('Speech recognition test started - downloading wav file');
     const audioBuffer = await wavUrlToBuffer(url);
+    if (process.env.DEBUG) console.log('Speech recognition test started - running speech recognition');
     const response = await resolveSpeechWithWITAI(audioBuffer, {
       key: WITAI_KEY,
     });
