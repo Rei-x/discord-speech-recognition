@@ -12,11 +12,8 @@ describe('Google Speech V2 test', function() {
   const [url, text] = speechRecognitionSamples[0];
   it('Speech recognition', async function() {
     this.timeout(16000);
-    if (process.env.DEBUG) console.log('Speech recognition test started - downloading wav file');
     const audioBuffer = await wavUrlToBuffer(url);
-    if (process.env.DEBUG) console.log('Wav file downloaded - running speech recognition');
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
-    if (process.env.DEBUG) console.log('Speech recognized');
     expect(response.toLowerCase()).to.equal(text);
   });
   it('Bad request data throws error', function() {

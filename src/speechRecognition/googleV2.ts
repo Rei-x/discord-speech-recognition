@@ -17,10 +17,7 @@ export interface GoogleSpeechV2Options {
 export async function resolveSpeechWithGoogleSpeechV2(audioBuffer: Buffer, options: GoogleSpeechV2Options = {lang: 'en-US'}): Promise<string> {
   const requestOptions = getGoogleRequestOptions(options);
   requestOptions.data = audioBuffer;
-  if (process.env.DEBUG) console.log('Sending google speech v2 request');
   const response = await axios(requestOptions);
-  if (process.env.DEBUG) console.log('Request sent, data received, status: ' + response.status);
-  if (process.env.DEBUG) console.log('Data: ' + JSON.stringify(response.data, null, 4));
   if (response.data.error) throw new Error('Google speech api error: ' + response.data);
   return response.data.result[0].alternative[0].transcript;
 }

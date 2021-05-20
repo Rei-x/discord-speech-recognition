@@ -29,9 +29,10 @@ describe('DiscordSR tests', function() {
       expect(discordSR.speechOptions.lang).to.be.equal('pl');
     });
   });
-  describe('Test bot', function() {
+  describe.only('Test bot', function() {
     let tm: TestManager;
     before(function() {
+      this.timeout(4000);
       tm = new TestManager(BOT_TOKEN, TESTBOT_TOKEN);
       return new Promise<void>((resolve) => {
         tm.once('ready', () => {
