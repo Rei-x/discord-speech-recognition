@@ -4,7 +4,11 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ## Installation
 
-`npm i discord-speech-recognition`
+`npm i discord-speech-recognition`  
+
+You need also dependency for voice, recommended:  
+`npm i @discordjs/opus`  
+You can read more here: <https://discordjs.guide/voice/#installing-dependencies>
 
 ## Docs
 
