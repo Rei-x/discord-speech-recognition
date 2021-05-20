@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+      - run: npm ci
+      - run: npm run lint && npm run coverage
+        env:
+            BOT_TOKEN: ${{secrets.BOT_TOKEN}}
+            TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
+            GUILD_ID: ${{secrets.GUILD_ID}}
+            WITAI_KEY: ${{secrets.WITAI_KEY}}
+            DEBUG: true

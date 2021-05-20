@@ -1,5 +1,4 @@
 import {DiscordSR} from '../src/index';
-import {BOT_TOKEN} from '../config.json';
 import {Client, MessageEmbed} from 'discord.js';
 import {VoiceMessage} from '../src/bot/voiceMessage';
 
@@ -31,4 +30,4 @@ client.on('speech', (message: VoiceMessage) => {
   }
 });
 
-client.login(BOT_TOKEN);
+client.login('token');

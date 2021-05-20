@@ -32,6 +32,7 @@ describe('DiscordSR tests', function() {
   describe('Test bot', function() {
     let tm: TestManager;
     before(function() {
+      this.timeout(4000);
       tm = new TestManager(BOT_TOKEN, TESTBOT_TOKEN);
       return new Promise<void>((resolve) => {
         tm.once('ready', () => {
@@ -78,7 +79,7 @@ describe('DiscordSR tests', function() {
       });
 
       it('Default speech recognition', async function() {
-        this.timeout(6000);
+        this.timeout(7000);
 
         await tm.clientVoiceChannel.join();
         const testConnection = await tm.testVoiceChannel.join();

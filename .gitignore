@@ -8,3 +8,5 @@ coverage
 recordings
 tsconfig.tsbuildinfo
 .env
+Dockerfile
+.dockerignore

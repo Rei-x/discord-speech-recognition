@@ -22,13 +22,13 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
     method: 'GET',
     responseType: 'stream',
   });
-
   const buffs: Uint8Array[] = [];
   const pcmDataStream = new Writable({
     write(chunk, _encoding, callback) {
       buffs.push(chunk);
       callback();
     },
+    emitClose: true,
   });
 
   const reader = new wav.Reader();
@@ -38,7 +38,7 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
   response.data.pipe(reader);
 
   return new Promise((resolve) => {
-    pcmDataStream.on('close', () => {
+    pcmDataStream.on('finish', () => {
       const audioBuffer = Buffer.concat(buffs);
       resolve(audioBuffer);
     });

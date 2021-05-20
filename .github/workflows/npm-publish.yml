@@ -16,8 +16,12 @@ jobs:
         with:
           node-version: 12
       - run: npm ci
-      - run: npm run build
-
+      - run: npm run lint && npm run coverage
+        env:
+            BOT_TOKEN: ${{secrets.BOT_TOKEN}}
+            TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
+            GUILD_ID: ${{secrets.GUILD_ID}}
+            WITAI_KEY: ${{secrets.WITAI_KEY}}
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
