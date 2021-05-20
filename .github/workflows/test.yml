@@ -23,4 +23,3 @@ jobs:
             TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
             GUILD_ID: ${{secrets.GUILD_ID}}
             WITAI_KEY: ${{secrets.WITAI_KEY}}
-            DEBUG: true
