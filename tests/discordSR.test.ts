@@ -29,7 +29,7 @@ describe('DiscordSR tests', function() {
       expect(discordSR.speechOptions.lang).to.be.equal('pl');
     });
   });
-  describe.only('Test bot', function() {
+  describe('Test bot', function() {
     let tm: TestManager;
     before(function() {
       this.timeout(4000);
