@@ -79,7 +79,7 @@ describe('DiscordSR tests', function() {
       });
 
       it('Default speech recognition', async function() {
-        this.timeout(6000);
+        this.timeout(7000);
 
         await tm.clientVoiceChannel.join();
         const testConnection = await tm.testVoiceChannel.join();

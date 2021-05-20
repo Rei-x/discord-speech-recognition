@@ -19,6 +19,7 @@ describe('Voice message', function() {
     }, undefined);
   });
   it('Save to .wav file', async function() {
+    this.timeout(4000);
     voiceMessage.saveToFile(filename);
     expect(fs.existsSync(filename));
     const readAudioBuffer = await readFileToAudioBuffer(filename);
@@ -39,10 +40,10 @@ async function readFileToAudioBuffer(filename: fs.PathLike): Promise<Buffer> {
   const buffs: Uint8Array[] = [];
   const pcmDataStream = createWritable();
 
-  writeAudioDataToFile();
+  writeAudioDataToWavStream(file, pcmDataStream);
 
   return new Promise<Buffer>((resolve) => {
-    pcmDataStream.on('close', () => {
+    pcmDataStream.on('finish', () => {
       const audioBuffer = Buffer.concat(buffs);
       resolve(audioBuffer);
     });
@@ -58,12 +59,12 @@ async function readFileToAudioBuffer(filename: fs.PathLike): Promise<Buffer> {
     });
   }
 
-  function writeAudioDataToFile() {
+  function writeAudioDataToWavStream(stream: fs.ReadStream, streamReader: Writable) {
     const reader = new wav.Reader();
     reader.on('format', () => {
-      reader.pipe(pcmDataStream);
+      reader.pipe(streamReader);
     });
-    file.pipe(reader);
+    stream.pipe(reader);
   }
 }
 
