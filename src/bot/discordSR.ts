@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {Client, User, VoiceConnection} from 'discord.js';
+import { Client, User, VoiceConnection } from "discord.js";
 
-import {resolveSpeechWithGoogleSpeechV2} from '../speechRecognition/googleV2';
-import {convertStereoToMono, getDurationFromMonoBuffer} from '../utils/audio';
-import {VoiceMessage} from './voiceMessage';
+import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
+import { convertStereoToMono, getDurationFromMonoBuffer } from "../utils/audio";
+import VoiceMessage from "./voiceMessage";
 
 /**
  * Speech recognition function, you can create your own and specify it in [[DiscordSROptions]], when creating [[DiscordSR]] object.
  *
  * All options that you pass to [[DiscordSR]] constructor, will be later passed to this function.
  */
-export interface speechRecognition {
-  (audioBuffer: Buffer, options?: {lang?: string, key?: string}): Promise<string>
+export interface SpeechRecognition {
+  (
+    audioBuffer: Buffer,
+    options?: { lang?: string; key?: string }
+  ): Promise<string>;
 }
 
 /**
@@ -19,7 +22,7 @@ export interface speechRecognition {
  */
 export interface DiscordSROptions {
   lang?: string;
-  speechRecognition?: speechRecognition;
+  speechRecognition?: SpeechRecognition;
 }
 
 /**
@@ -33,8 +36,16 @@ export interface DiscordSROptions {
  */
 export default class DiscordSR {
   client: Client;
+
   speechOptions: DiscordSROptions;
-  constructor(client: Client, options: DiscordSROptions = {lang: 'en-US', speechRecognition: resolveSpeechWithGoogleSpeechV2}) {
+
+  constructor(
+    client: Client,
+    options: DiscordSROptions = {
+      lang: "en-US",
+      speechRecognition: resolveSpeechWithGoogleSpeechV2,
+    }
+  ) {
     this.client = client;
     this.speechOptions = options;
 
@@ -46,8 +57,9 @@ export default class DiscordSR {
    * Enables `voiceJoin` event on Client
    */
   private setupVoiceJoinEvent(): void {
-    this.client.on('voiceStateUpdate', (_old, newVoiceState) => {
-      if (newVoiceState.connection) this.client.emit('voiceJoin', newVoiceState.connection);
+    this.client.on("voiceStateUpdate", (_old, newVoiceState) => {
+      if (newVoiceState.connection)
+        this.client.emit("voiceJoin", newVoiceState.connection);
     });
   }
 
@@ -55,8 +67,8 @@ export default class DiscordSR {
    * Enables `speech` event on Client, which is called whenever someone stops speaking
    */
   private setupSpeechEvent(): void {
-    this.client.on('voiceJoin', (connection: VoiceConnection) => {
-      connection.once('ready', () => {
+    this.client.on("voiceJoin", (connection: VoiceConnection) => {
+      connection.once("ready", () => {
         this.handleSpeakingEvent(connection);
       });
     });
@@ -67,43 +79,61 @@ export default class DiscordSR {
    * @param connection Connection to listen
    */
   private handleSpeakingEvent(connection: VoiceConnection) {
-    connection.on('speaking', (user) => {
-      const audioStream = connection.receiver.createStream(user, {mode: 'pcm'});
+    connection.on("speaking", (user) => {
+      const audioStream = connection.receiver.createStream(user, {
+        mode: "pcm",
+      });
       const bufferData: Uint8Array[] = [];
 
-      audioStream.on('data', (data) => {
+      audioStream.on("data", (data) => {
         bufferData.push(data);
       });
 
-      audioStream.on('end', async () => {
-        const voiceMessage = await this.createVoiceMessage(bufferData, user, connection);
-        if (voiceMessage) this.client.emit('speech', voiceMessage);
+      audioStream.on("end", async () => {
+        const voiceMessage = await this.createVoiceMessage(
+          bufferData,
+          user,
+          connection
+        );
+        if (voiceMessage) this.client.emit("speech", voiceMessage);
       });
     });
   }
 
-  private async createVoiceMessage(bufferData: Uint8Array[], user: User, connection: VoiceConnection): Promise<VoiceMessage | void> {
+  private async createVoiceMessage(
+    bufferData: Uint8Array[],
+    user: User,
+    connection: VoiceConnection
+  ): Promise<VoiceMessage | undefined> {
     const stereoBuffer = Buffer.concat(bufferData);
     const monoBuffer = convertStereoToMono(stereoBuffer);
 
     const duration = getDurationFromMonoBuffer(stereoBuffer);
 
-    if (duration < 1 || duration > 19) return;
+    if (duration < 1 || duration > 19) return undefined;
 
-    let content; let error;
+    let content;
+    let error;
     try {
-      content = await this.speechOptions.speechRecognition?.(monoBuffer, this.speechOptions);
+      content = await this.speechOptions.speechRecognition?.(
+        monoBuffer,
+        this.speechOptions
+      );
     } catch (e) {
       error = e;
     }
 
-    const voiceMessage = new VoiceMessage(this.client, {
-      author: user,
-      duration: duration,
-      audioBuffer: stereoBuffer,
-      content,
-      error,
-    }, connection.channel);
+    const voiceMessage = new VoiceMessage(
+      this.client,
+      {
+        author: user,
+        duration,
+        audioBuffer: stereoBuffer,
+        content,
+        error,
+      },
+      connection.channel
+    );
     return voiceMessage;
   }
 }

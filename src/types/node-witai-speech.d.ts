@@ -1,1 +1,1 @@
-declare module 'node-witai-speech';
+declare module "node-witai-speech";

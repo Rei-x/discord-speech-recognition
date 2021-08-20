@@ -1,1 +1,1 @@
-declare module 'discord-tts';
+declare module "discord-tts";

@@ -1,33 +1,41 @@
-import {Client, Guild, GuildMember, User, VoiceChannel} from 'discord.js';
-import wav from 'wav';
-interface VoiceMessageData {
+import { Client, Guild, GuildMember, User, VoiceChannel } from "discord.js";
+import wav from "wav";
+
+export interface VoiceMessageData {
   duration: number;
   audioBuffer: Buffer;
-  content?: string,
-  error?: string,
-  author: User,
+  content?: string;
+  error?: string;
+  author: User;
 }
 
-export class VoiceMessage {
+export default class VoiceMessage {
   channel: VoiceChannel;
+
   /**
    * Speech to text translation
    */
   content?: string;
+
   author: User;
+
   /**
    * Duration in seconds
    */
   duration: number;
+
   /**
    * PCM mono 48k audio data
    */
   audioBuffer: Buffer;
+
   client: Client;
+
   /**
    * If there was any error during handling speech event, this will be set
    */
   error?: string;
+
   /**
    * Voice message, it is emited `speech` event
    * @param client
@@ -44,6 +52,7 @@ export class VoiceMessage {
     this.content = data?.content;
     this.error = data?.error;
   }
+
   /**
    * Saves audio to .wav file
    * @param filename File directory, for example: `./test.wav`
@@ -56,9 +65,11 @@ export class VoiceMessage {
     outputFile.write(this.audioBuffer);
     outputFile.end();
   }
+
   get member(): GuildMember | null {
     return this.guild.member(this.author);
   }
+
   get guild(): Guild {
     return this.channel.guild;
   }
