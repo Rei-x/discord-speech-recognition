@@ -24,5 +24,8 @@ module.exports = {
     semi: 2,
     "max-len": 0,
     "no-prototype-builtins": 0,
+    "@typescript-eslint/no-unused-expressions": 0,
+    "class-methods-use-this": 0,
+    "no-non-null-assertion": 0,
   },
 };

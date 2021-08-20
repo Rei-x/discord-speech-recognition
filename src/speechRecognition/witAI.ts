@@ -35,9 +35,9 @@ async function extractSpeechIntent(
 
 export async function resolveSpeechWithWITAI(
   audioBuffer: Buffer,
-  options: WitaiOptions
+  options?: WitaiOptions
 ): Promise<string> {
-  const { key } = options;
+  const key = options?.key;
   if (!key) throw new Error("wit.ai API key wasn't specified.");
 
   const contenttype =

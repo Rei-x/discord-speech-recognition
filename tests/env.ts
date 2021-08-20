@@ -1,8 +1,29 @@
-import dotenv from 'dotenv';
+import { AnyARecord } from "dns";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-export const BOT_TOKEN = process.env.BOT_TOKEN;
-export const TESTBOT_TOKEN = process.env.TESTBOT_TOKEN;
-export const GUILD_ID = process.env.GUILD_ID;
-export const WITAI_KEY = process.env.WITAI_KEY;
+class EnvError extends Error {
+  constructor(envVariableName: string) {
+    super(`${envVariableName} wasn't specified in environmental variables.`);
+  }
+}
+
+const getConfigObject = (variables: Array<string>) => {
+  const config: Record<string, string> = {};
+  variables.forEach((variable) => {
+    const value = process.env[variable];
+    if (!value) throw new EnvError(variable);
+    config[variable] = value;
+  });
+  return config;
+};
+
+const config = getConfigObject([
+  "BOT_TOKEN",
+  "TESTBOT_TOKEN",
+  "GUILD_ID",
+  "WITAI_KEY",
+]);
+
+export default config;

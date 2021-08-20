@@ -1,96 +1,116 @@
 /* eslint-disable no-invalid-this */
-import {expect} from 'chai';
-import {Client, Guild, VoiceChannel} from 'discord.js';
-import {TestManager} from './testUtils';
-import {DiscordSR, resolveSpeechWithWITAI, VoiceMessage} from '../src/index';
-import {BOT_TOKEN, TESTBOT_TOKEN, GUILD_ID} from './env';
-import {once} from 'events';
-
+import { expect } from "chai";
+import { Client, Guild, Intents, VoiceChannel } from "discord.js";
+import { once } from "events";
+import {
+  createAudioPlayer,
+  createAudioResource,
+  StreamType,
+} from "@discordjs/voice";
+import { TestManager } from "./utils";
+import { DiscordSR, resolveSpeechWithWITAI, VoiceMessage } from "../src/index";
+import config from "./env";
 
 const speechRecognitionSamples = [
-  ['https://cdn.discordapp.com/attachments/838767598778843149/841292361291923487/ttsMP3.com_VoiceText_2021-5-10_14_35_18.mp3', 'alexa play despacito'],
+  [
+    "https://cdn.discordapp.com/attachments/838767598778843149/841292361291923487/ttsMP3.com_VoiceText_2021-5-10_14_35_18.mp3",
+    "alexa play despacito",
+  ],
 ];
 
-
-describe('DiscordSR tests', function() {
-  describe('Options', function() {
-    const client = new Client();
-    it('Default options', function() {
+describe("DiscordSR tests", () => {
+  describe("Options", () => {
+    const client = new Client({
+      intents: [Intents.FLAGS.GUILD_VOICE_STATES],
+    });
+    it("Default options", () => {
       const discordSR = new DiscordSR(client);
       expect(discordSR.speechOptions.speechRecognition).to.be.not.undefined;
       expect(discordSR.speechOptions.lang).to.be.not.undefined;
     });
-    it('Custom options', function() {
+    it("Custom options", () => {
       const discordSR = new DiscordSR(client, {
-        lang: 'pl',
+        lang: "pl",
         speechRecognition: resolveSpeechWithWITAI,
       });
-      expect(discordSR.speechOptions.speechRecognition).to.be.equal(resolveSpeechWithWITAI);
-      expect(discordSR.speechOptions.lang).to.be.equal('pl');
+      expect(discordSR.speechOptions.speechRecognition).to.be.equal(
+        resolveSpeechWithWITAI
+      );
+      expect(discordSR.speechOptions.lang).to.be.equal("pl");
     });
   });
-  describe('Test bot', function() {
+  describe("Test bot", () => {
     let tm: TestManager;
-    before(function() {
+    before(function before() {
       this.timeout(4000);
-      tm = new TestManager(BOT_TOKEN, TESTBOT_TOKEN);
+      tm = new TestManager(config.BOT_TOKEN, config.TESTBOT_TOKEN);
       return new Promise<void>((resolve) => {
-        tm.once('ready', () => {
+        tm.once("ready", () => {
           resolve();
         });
       });
     });
 
-    it('Test config', function() {
-      expect(TESTBOT_TOKEN, 'Test bot token not specified').to.be.string;
-      expect(BOT_TOKEN, 'Main bot token not specified').to.be.string;
-      expect(GUILD_ID, 'Guild ID not specified').to.be.string;
+    it("Test config", () => {
+      expect(config.TESTBOT_TOKEN, "Test bot token not specified").to.be.string;
+      expect(config.BOT_TOKEN, "Main bot token not specified").to.be.string;
+      expect(config.GUILD_ID, "Guild ID not specified").to.be.string;
     });
 
-    it('Check if test bot and main bot are in the same guild', async function() {
-      return new Promise((resolve, reject) => {
-        const testClientGuild: Guild = tm.testClient.guilds.cache.get(GUILD_ID);
-        const clientGuild = tm.client.guilds.cache.get(GUILD_ID);
+    it("Check if test bot and main bot are in the same guild", async () =>
+      new Promise((resolve, reject) => {
+        const testClientGuild = tm.testClient.guilds.cache.get(config.GUILD_ID);
+        const clientGuild = tm.client.guilds.cache.get(config.GUILD_ID);
         try {
-          expect(testClientGuild, 'Test bot not in guild').to.be.an.instanceOf(Guild);
-          expect(clientGuild, 'Main bot not in guild').to.be.an.instanceOf(Guild);
-          expect(testClientGuild.id).to.be.equal(clientGuild.id);
+          expect(testClientGuild, "Test bot not in guild").to.be.an.instanceOf(
+            Guild
+          );
+          expect(clientGuild, "Main bot not in guild").to.be.an.instanceOf(
+            Guild
+          );
+          expect(testClientGuild?.id).to.be.equal(clientGuild?.id);
           resolve();
         } catch (error) {
           reject(error);
         }
-      });
-    },
-    );
-    describe('Events', function() {
-      before(function() {
+      }));
+    describe("Events", () => {
+      before(function before() {
         this.timeout(6000);
-        return tm.setTestVoiceChannel(GUILD_ID);
+        return tm.setTestVoiceChannel(config.GUILD_ID);
       });
 
-      it('Test voice channel', function() {
+      it("Test voice channel", () => {
         expect(tm.clientVoiceChannel).to.be.an.instanceOf(VoiceChannel);
         expect(tm.testVoiceChannel).to.be.an.instanceOf(VoiceChannel);
       });
 
-      it('Voice join event', async function() {
-        tm.clientVoiceChannel.join();
-        await once(tm.client, 'voiceJoin');
+      it("Voice join event", async () => {
+        tm.connectToVoiceChannel("client");
+        await once(tm.client, "voiceJoin");
       });
 
-      it('Default speech recognition', async function() {
+      it("Default speech recognition", async function testSpeechRecognition() {
         this.timeout(7000);
 
-        await tm.clientVoiceChannel.join();
-        const testConnection = await tm.testVoiceChannel.join();
         const [url, text] = speechRecognitionSamples[0];
 
-        testConnection.play(url);
+        const player = createAudioPlayer();
+        const resource = createAudioResource(url, {
+          inputType: StreamType.Arbitrary,
+        });
+
+        tm.connectToVoiceChannel("client");
+        const testConnection = tm.connectToVoiceChannel("testClient");
+
+        (await testConnection).subscribe(player);
+
+        player.play(resource);
 
         return new Promise((resolve, reject) => {
-          tm.client.on('speech', (msg: VoiceMessage) => {
+          tm.client.on("speech", (msg: VoiceMessage) => {
             try {
-              expect(msg.content.toLowerCase()).to.be.equal(text);
+              expect(msg.content?.toLowerCase()).to.be.equal(text);
               resolve();
             } catch (error) {
               reject(error);
@@ -99,11 +119,7 @@ describe('DiscordSR tests', function() {
         });
       });
 
-      after(function() {
-        return tm.destroyTestVoiceChannel();
-      });
+      after(async () => tm.testVoiceChannel?.delete());
     });
   });
 });
-
-

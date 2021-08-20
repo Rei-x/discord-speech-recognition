@@ -1,6 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Client, User, VoiceConnection } from "discord.js";
-
+import { Client, User } from "discord.js";
+import {
+  EndBehaviorType,
+  getVoiceConnection,
+  VoiceConnection,
+  VoiceConnectionStatus,
+} from "@discordjs/voice";
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { convertStereoToMono, getDurationFromMonoBuffer } from "../utils/audio";
 import VoiceMessage from "./voiceMessage";
@@ -58,8 +62,11 @@ export default class DiscordSR {
    */
   private setupVoiceJoinEvent(): void {
     this.client.on("voiceStateUpdate", (_old, newVoiceState) => {
-      if (newVoiceState.connection)
-        this.client.emit("voiceJoin", newVoiceState.connection);
+      if (newVoiceState.channel)
+        this.client.emit(
+          "voiceJoin",
+          getVoiceConnection(newVoiceState.channel.guild.id)
+        );
     });
   }
 
@@ -68,7 +75,7 @@ export default class DiscordSR {
    */
   private setupSpeechEvent(): void {
     this.client.on("voiceJoin", (connection: VoiceConnection) => {
-      connection.once("ready", () => {
+      connection.once(VoiceConnectionStatus.Ready, () => {
         this.handleSpeakingEvent(connection);
       });
     });
@@ -79,32 +86,45 @@ export default class DiscordSR {
    * @param connection Connection to listen
    */
   private handleSpeakingEvent(connection: VoiceConnection) {
-    connection.on("speaking", (user) => {
-      const audioStream = connection.receiver.createStream(user, {
-        mode: "pcm",
+    connection.receiver.speaking.on("start", (userId) => {
+      const { receiver } = connection;
+      const opusStream = receiver.subscribe(userId, {
+        end: {
+          behavior: EndBehaviorType.AfterSilence,
+          duration: 100,
+        },
       });
       const bufferData: Uint8Array[] = [];
 
-      audioStream.on("data", (data) => {
+      opusStream.on("data", (data: Uint8Array) => {
         bufferData.push(data);
       });
 
-      audioStream.on("end", async () => {
-        const voiceMessage = await this.createVoiceMessage(
+      opusStream.on("end", async () => {
+        const user = this.client.users.cache.get(userId);
+        if (!user) return;
+
+        const voiceMessage = await this.createVoiceMessage({
           bufferData,
           user,
-          connection
-        );
+          connection,
+        });
         if (voiceMessage) this.client.emit("speech", voiceMessage);
       });
     });
   }
 
-  private async createVoiceMessage(
-    bufferData: Uint8Array[],
-    user: User,
-    connection: VoiceConnection
-  ): Promise<VoiceMessage | undefined> {
+  private async createVoiceMessage({
+    bufferData,
+    user,
+    connection,
+  }: {
+    bufferData: Uint8Array[];
+    user: User;
+    connection: VoiceConnection;
+  }): Promise<VoiceMessage | undefined> {
+    if (!connection.joinConfig.channelId) return undefined;
+
     const stereoBuffer = Buffer.concat(bufferData);
     const monoBuffer = convertStereoToMono(stereoBuffer);
 
@@ -123,17 +143,23 @@ export default class DiscordSR {
       error = e;
     }
 
-    const voiceMessage = new VoiceMessage(
-      this.client,
-      {
+    const channel = this.client.channels.cache.get(
+      connection.joinConfig.channelId
+    );
+    if (!channel || !channel.isVoice()) return undefined;
+
+    const voiceMessage = new VoiceMessage({
+      client: this.client,
+      data: {
         author: user,
         duration,
         audioBuffer: stereoBuffer,
         content,
         error,
+        connection,
       },
-      connection.channel
-    );
+      channel,
+    });
     return voiceMessage;
   }
 }

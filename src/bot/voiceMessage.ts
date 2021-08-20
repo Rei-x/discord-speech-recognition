@@ -1,4 +1,12 @@
-import { Client, Guild, GuildMember, User, VoiceChannel } from "discord.js";
+import { VoiceConnection } from "@discordjs/voice";
+import {
+  Client,
+  Guild,
+  GuildMember,
+  StageChannel,
+  User,
+  VoiceChannel,
+} from "discord.js";
 import wav from "wav";
 
 export interface VoiceMessageData {
@@ -6,11 +14,12 @@ export interface VoiceMessageData {
   audioBuffer: Buffer;
   content?: string;
   error?: string;
+  connection: VoiceConnection;
   author: User;
 }
 
 export default class VoiceMessage {
-  channel: VoiceChannel;
+  channel: VoiceChannel | StageChannel;
 
   /**
    * Speech to text translation
@@ -36,6 +45,8 @@ export default class VoiceMessage {
    */
   error?: string;
 
+  connection: VoiceConnection;
+
   /**
    * Voice message, it is emited `speech` event
    * @param client
@@ -43,11 +54,20 @@ export default class VoiceMessage {
    * @param channel
    * @private
    */
-  constructor(client: Client, data: VoiceMessageData, channel: VoiceChannel) {
+  constructor({
+    client,
+    data,
+    channel,
+  }: {
+    client: Client;
+    data: VoiceMessageData;
+    channel: VoiceChannel | StageChannel;
+  }) {
     this.client = client;
     this.channel = channel;
     this.author = data.author;
     this.audioBuffer = data.audioBuffer;
+    this.connection = data.connection;
     this.duration = data.duration;
     this.content = data?.content;
     this.error = data?.error;
@@ -66,8 +86,8 @@ export default class VoiceMessage {
     outputFile.end();
   }
 
-  get member(): GuildMember | null {
-    return this.guild.member(this.author);
+  get member(): GuildMember | undefined {
+    return this.guild.members.cache.get(this.author.id);
   }
 
   get guild(): Guild {
