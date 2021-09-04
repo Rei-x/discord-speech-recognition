@@ -1,5 +1,7 @@
 # Discord Speech Recognition Extension
 
+❗ Currently it only works with **discord.js v12** ❗
+
 This is an extension for [discord.js](https://discord.js.org) library that makes creating discord speech recognition bots as easy as common text bots.
 
 ## Installation
