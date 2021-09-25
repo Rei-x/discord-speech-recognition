@@ -10,19 +10,22 @@ import VoiceMessage from "./voiceMessage";
  *
  * All options that you pass to [[DiscordSR]] constructor, will be later passed to this function.
  */
+
+export interface SpeechRecognitionOptions {
+  lang?: string;
+  key?: string;
+  profanityFilter?: boolean;
+}
 export interface SpeechRecognition {
-  (
-    audioBuffer: Buffer,
-    options?: { lang?: string; key?: string }
-  ): Promise<string>;
+  (audioBuffer: Buffer, options?: SpeechRecognitionOptions): Promise<string>;
 }
 
 /**
  * Options that will be passed to [[speechRecognition]] function
  */
 export interface DiscordSROptions {
-  lang?: string;
   speechRecognition?: SpeechRecognition;
+  speechOptions: SpeechRecognitionOptions;
 }
 
 /**
@@ -42,8 +45,11 @@ export default class DiscordSR {
   constructor(
     client: Client,
     options: DiscordSROptions = {
-      lang: "en-US",
       speechRecognition: resolveSpeechWithGoogleSpeechV2,
+      speechOptions: {
+        lang: "en-US",
+        profanityFilter: true,
+      },
     }
   ) {
     this.client = client;
@@ -117,7 +123,7 @@ export default class DiscordSR {
     try {
       content = await this.speechOptions.speechRecognition?.(
         monoBuffer,
-        this.speechOptions
+        this.speechOptions.speechOptions
       );
     } catch (e) {
       error = e;

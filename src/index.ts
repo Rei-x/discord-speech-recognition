@@ -1,6 +1,7 @@
 export {
   default as DiscordSR,
   SpeechRecognition as speechRecognition,
+  SpeechRecognitionOptions,
   DiscordSROptions,
 } from "./bot/discordSR";
 export { speech, voiceJoin } from "./events";

@@ -40,7 +40,7 @@
 		"wav": "^1.0.2"
 	},
 	"devDependencies": {
-		"@discordjs/opus": "^0.5.0",
+		"@discordjs/opus": "^0.5.3",
 		"@istanbuljs/nyc-config-typescript": "^1.0.1",
 		"@types/chai": "^4.2.18",
 		"@types/chai-as-promised": "^7.1.4",

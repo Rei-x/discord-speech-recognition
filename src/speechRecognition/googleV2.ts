@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+// import { SpeechRecognitionOptions } from "../bot/discordSR";
 
 /**
  * You can obtain API key here [http://www.chromium.org/developers/how-tos/api-keys](http://www.chromium.org/developers/how-tos/api-keys)
@@ -6,6 +7,7 @@ import axios, { AxiosRequestConfig } from "axios";
 export interface GoogleSpeechV2Options {
   key?: string;
   lang?: string;
+  profanityFilter?: boolean;
 }
 
 /**
@@ -20,14 +22,17 @@ function getGoogleRequestOptions(
 ): AxiosRequestConfig {
   let key = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw";
   let lang = "en-US";
+  let profanityFilter = "1"; // Google's default
 
   if (options) {
     if (options.key) key = options.key;
     if (options.lang) lang = options.lang;
+    if (options.profanityFilter !== undefined)
+      profanityFilter = options.profanityFilter ? "1" : "0";
   }
 
   const googleRequestOptions: AxiosRequestConfig = {
-    url: `https://www.google.com/speech-api/v2/recognize?output=json&lang=${lang}&key=${key}`,
+    url: `https://www.google.com/speech-api/v2/recognize?output=json&lang=${lang}&key=${key}&pFilter=${profanityFilter}`,
     headers: {
       "Content-Type": "audio/l16; rate=48000;",
     },
