@@ -40,7 +40,7 @@ export interface DiscordSROptions {
 export default class DiscordSR {
   client: Client;
 
-  speechOptions: DiscordSROptions;
+  options: DiscordSROptions;
 
   constructor(
     client: Client,
@@ -53,7 +53,7 @@ export default class DiscordSR {
     }
   ) {
     this.client = client;
-    this.speechOptions = options;
+    this.options = options;
 
     this.setupVoiceJoinEvent();
     this.setupSpeechEvent();
@@ -121,9 +121,9 @@ export default class DiscordSR {
     let content;
     let error;
     try {
-      content = await this.speechOptions.speechRecognition?.(
+      content = await this.options.speechRecognition?.(
         monoBuffer,
-        this.speechOptions.speechOptions
+        this.options.speechOptions
       );
     } catch (e) {
       error = e;

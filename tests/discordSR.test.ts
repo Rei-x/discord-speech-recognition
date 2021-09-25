@@ -17,8 +17,8 @@ describe('DiscordSR tests', function() {
     const client = new Client();
     it('Default options', function() {
       const discordSR = new DiscordSR(client);
-      expect(discordSR.speechOptions.speechRecognition).to.be.not.undefined;
-      expect(discordSR.speechOptions.speechOptions.lang).to.be.not.undefined;
+      expect(discordSR.options.speechRecognition).to.be.not.undefined;
+      expect(discordSR.options.speechOptions.lang).to.be.not.undefined;
     });
     it('Custom options', function() {
       const discordSR = new DiscordSR(client, {
@@ -28,9 +28,9 @@ describe('DiscordSR tests', function() {
         },
         speechRecognition: resolveSpeechWithWITAI,
       });
-      expect(discordSR.speechOptions.speechRecognition).to.be.equal(resolveSpeechWithWITAI);
-      expect(discordSR.speechOptions.speechOptions.lang).to.be.equal('pl');
-      expect(discordSR.speechOptions.speechOptions.profanityFilter).to.be.equal(true);
+      expect(discordSR.options.speechRecognition).to.be.equal(resolveSpeechWithWITAI);
+      expect(discordSR.options.speechOptions.lang).to.be.equal('pl');
+      expect(discordSR.options.speechOptions.profanityFilter).to.be.equal(true);
     });
   });
   describe('Test bot', function() {
