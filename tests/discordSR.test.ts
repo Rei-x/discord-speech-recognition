@@ -17,16 +17,20 @@ describe('DiscordSR tests', function() {
     const client = new Client();
     it('Default options', function() {
       const discordSR = new DiscordSR(client);
-      expect(discordSR.speechOptions.speechRecognition).to.be.not.undefined;
-      expect(discordSR.speechOptions.lang).to.be.not.undefined;
+      expect(discordSR.options.speechRecognition).to.be.not.undefined;
+      expect(discordSR.options.speechOptions.lang).to.be.not.undefined;
     });
     it('Custom options', function() {
       const discordSR = new DiscordSR(client, {
-        lang: 'pl',
+        speechOptions: {
+          lang: "pl",
+          profanityFilter: true,
+        },
         speechRecognition: resolveSpeechWithWITAI,
       });
-      expect(discordSR.speechOptions.speechRecognition).to.be.equal(resolveSpeechWithWITAI);
-      expect(discordSR.speechOptions.lang).to.be.equal('pl');
+      expect(discordSR.options.speechRecognition).to.be.equal(resolveSpeechWithWITAI);
+      expect(discordSR.options.speechOptions.lang).to.be.equal('pl');
+      expect(discordSR.options.speechOptions.profanityFilter).to.be.equal(true);
     });
   });
   describe('Test bot', function() {

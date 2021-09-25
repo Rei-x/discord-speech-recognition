@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client, User, VoiceConnection } from "discord.js";
-
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { convertStereoToMono, getDurationFromMonoBuffer } from "../utils/audio";
 import VoiceMessage from "./voiceMessage";
+
+export interface SpeechRecognitionOptions {
+  lang?: string;
+  key?: string;
+  profanityFilter?: boolean;
+}
 
 /**
  * Speech recognition function, you can create your own and specify it in [[DiscordSROptions]], when creating [[DiscordSR]] object.
@@ -11,18 +16,15 @@ import VoiceMessage from "./voiceMessage";
  * All options that you pass to [[DiscordSR]] constructor, will be later passed to this function.
  */
 export interface SpeechRecognition {
-  (
-    audioBuffer: Buffer,
-    options?: { lang?: string; key?: string }
-  ): Promise<string>;
+  (audioBuffer: Buffer, options?: SpeechRecognitionOptions): Promise<string>;
 }
 
 /**
  * Options that will be passed to [[speechRecognition]] function
  */
 export interface DiscordSROptions {
-  lang?: string;
   speechRecognition?: SpeechRecognition;
+  speechOptions: SpeechRecognitionOptions;
 }
 
 /**
@@ -37,17 +39,20 @@ export interface DiscordSROptions {
 export default class DiscordSR {
   client: Client;
 
-  speechOptions: DiscordSROptions;
+  options: DiscordSROptions;
 
   constructor(
     client: Client,
     options: DiscordSROptions = {
-      lang: "en-US",
       speechRecognition: resolveSpeechWithGoogleSpeechV2,
+      speechOptions: {
+        lang: "en-US",
+        profanityFilter: true,
+      },
     }
   ) {
     this.client = client;
-    this.speechOptions = options;
+    this.options = options;
 
     this.setupVoiceJoinEvent();
     this.setupSpeechEvent();
@@ -115,9 +120,9 @@ export default class DiscordSR {
     let content;
     let error;
     try {
-      content = await this.speechOptions.speechRecognition?.(
+      content = await this.options.speechRecognition?.(
         monoBuffer,
-        this.speechOptions
+        this.options.speechOptions
       );
     } catch (e) {
       error = e;
