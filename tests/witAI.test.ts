@@ -1,8 +1,8 @@
 /* eslint-disable no-invalid-this */
 import chai from 'chai';
 import chaiAsPRosmied from 'chai-as-promised';
-import {resolveSpeechWithWITAI, wavUrlToBuffer} from '../src/index';
-import {WITAI_KEY} from './env';
+import { resolveSpeechWithWITAI, wavUrlToBuffer } from '../src/index';
+import { WITAI_KEY } from './env';
 
 chai.use(chaiAsPRosmied);
 const expect = chai.expect;
@@ -17,12 +17,6 @@ describe('witAI test', function() {
       key: WITAI_KEY,
     });
     expect(response.toLowerCase()).to.equal(text);
-  });
-  it('Bad request data throws error', function() {
-    const badAudioBuffer = Buffer.from('test');
-    return expect(resolveSpeechWithWITAI(badAudioBuffer, {
-      key: WITAI_KEY,
-    })).to.be.rejectedWith('Wrong request data');
   });
   it('Empty request body throws error', function() {
     const emptyBuffer = Buffer.from('');

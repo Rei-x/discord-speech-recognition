@@ -7,7 +7,7 @@ const expect = chai.expect;
 
 
 const speechRecognitionSamples = [
-  ['https://cdn.discordapp.com/attachments/838767598778843149/891342057577271339/Hello_my_name_is_john.wav', 'hello my name is john'],
+  ['https://cdn.discordapp.com/attachments/838767598778843149/891342057577271339/Hello_my_name_is_john.wav', 'my name is john'],
   ['https://cdn.discordapp.com/attachments/838767598778843149/891340727878029342/What_the_fuck_are_you_doing_right_now.wav', 'what the fuck are you doing right now']
 ];
 
