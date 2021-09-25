@@ -1,5 +1,4 @@
 import axios, { AxiosRequestConfig } from "axios";
-// import { SpeechRecognitionOptions } from "../bot/discordSR";
 
 /**
  * You can obtain API key here [http://www.chromium.org/developers/how-tos/api-keys](http://www.chromium.org/developers/how-tos/api-keys)
