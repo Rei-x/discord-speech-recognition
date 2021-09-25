@@ -17,7 +17,7 @@ describe('Google Speech V2 test', function() {
     const [url, text] = speechRecognitionSamples[0];
     const audioBuffer = await wavUrlToBuffer(url);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
-    expect(response.toLowerCase()).to.equal(text);
+    expect(response.toLowerCase()).to.contain(text);
   });
   it('Censor bad words', async function() {
     this.timeout(16000);
