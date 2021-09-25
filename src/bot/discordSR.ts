@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client, User, VoiceConnection } from "discord.js";
-
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { convertStereoToMono, getDurationFromMonoBuffer } from "../utils/audio";
 import VoiceMessage from "./voiceMessage";
-
-/**
- * Speech recognition function, you can create your own and specify it in [[DiscordSROptions]], when creating [[DiscordSR]] object.
- *
- * All options that you pass to [[DiscordSR]] constructor, will be later passed to this function.
- */
 
 export interface SpeechRecognitionOptions {
   lang?: string;
   key?: string;
   profanityFilter?: boolean;
 }
+
+/**
+ * Speech recognition function, you can create your own and specify it in [[DiscordSROptions]], when creating [[DiscordSR]] object.
+ *
+ * All options that you pass to [[DiscordSR]] constructor, will be later passed to this function.
+ */
 export interface SpeechRecognition {
   (audioBuffer: Buffer, options?: SpeechRecognitionOptions): Promise<string>;
 }
