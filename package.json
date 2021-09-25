@@ -1,6 +1,6 @@
 {
 	"name": "discord-speech-recognition",
-	"version": "1.0.7",
+	"version": "1.1.0",
 	"description": "Extension for making discord speech recognition bots.",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
