@@ -1,4 +1,2 @@
-import TestManager from "./TestManager";
-
-// eslint-disable-next-line import/prefer-default-export
-export { TestManager };
+export { default as readFileToAudioBuffer } from "./Audio";
+export { default as TestManager } from "./TestManager";
