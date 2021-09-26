@@ -1,13 +1,10 @@
 /* eslint-disable no-invalid-this */
 import { expect } from "chai";
 import fs from "fs";
-import {
-  getDurationFromMonoBuffer,
-  VoiceMessage,
-  wavUrlToBuffer,
-} from "../src";
+import { VoiceMessage } from "../src";
+import { getDurationFromMonoBuffer } from "../src/utils/audio";
 import { data } from "./sampleData.json";
-import { readFileToAudioBuffer } from "./utils";
+import { readFileToAudioBuffer, wavUrlToBuffer } from "./utils";
 
 describe("Voice message", () => {
   const mockData = undefined as never;

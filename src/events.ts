@@ -8,17 +8,29 @@ import VoiceMessage from "./bot/voiceMessage";
  * Example usage:
  * ```javascript
  * client.on('voiceJoin', (connection) => {
- *   connection.play('audio.mp3');
+ *   const player = createAudioPlayer();
+ *   const resource = createAudioResource("./music.mp3", {
+ *   inputType: StreamType.Arbitrary,
+ *   });
+ *
+ *   connection.subscribe(player);
+ *   player.play(resource);
  * });
  * ```
- * @asMemberOf DiscordSR
  * @event
  */
 export declare function voiceJoin(connection: VoiceConnection): void;
 
 /**
  * Emitted when someone ends talking in channel
- * @asMemberOf DiscordSR
+ * <hr>
+ *
+ * Example usage:
+ * ```javascript
+ * client.on("speech", (msg) => {
+ *   msg.author.send(msg.content);
+ * });
+ * ```
  * @param voiceMessage
  * @event
  */

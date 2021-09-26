@@ -6,15 +6,13 @@ import {
 } from "@discordjs/voice";
 import { Client, ClientOptions, Guild, VoiceChannel } from "discord.js";
 import { EventEmitter } from "events";
-import { DiscordSR } from "../../src";
+import { addSpeechEvent } from "../../src";
 import Waiter from "./WaitForBots";
 
 export default class TestManager extends EventEmitter {
   testClient: Client;
 
   client: Client;
-
-  discordSR: DiscordSR;
 
   testVoiceChannel: VoiceChannel | undefined;
 
@@ -27,7 +25,7 @@ export default class TestManager extends EventEmitter {
     };
     this.testClient = new Client(clientOptions);
     this.client = new Client(clientOptions);
-    this.discordSR = new DiscordSR(this.client, { group: "client" });
+    addSpeechEvent(this.client, { group: "client" });
 
     this.client.login(mainToken);
     this.testClient.login(testToken);

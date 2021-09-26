@@ -24,10 +24,9 @@ export default class Waiter extends EventEmitter {
   }
 
   /**
-   * @private
    * @param client
    */
-  setReady(client: Client): void {
+  private setReady(client: Client): void {
     if (!client.user) return;
     const numberOfReadyClients = this.readyBots.add(client.user.username).size;
 

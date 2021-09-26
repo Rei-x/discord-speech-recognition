@@ -1,13 +1,8 @@
 {
-  "entryPoints": [
-    "src/index.ts"
-  ],
+  "entryPoints": ["src/index.ts"],
   "out": "generated_docs",
   "name": "Discord Speech Recognition",
-  "plugin": [
-    "typedoc-plugin-as-member-of"
-  ],
   "excludePrivate": true,
   "includes": "./examples",
-  "readme": "docs/readme.md"
+  "readme": "docs/README.md"
 }

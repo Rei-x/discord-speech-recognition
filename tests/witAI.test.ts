@@ -1,8 +1,9 @@
 /* eslint-disable no-invalid-this */
 import chai from "chai";
 import chaiAsPRosmied from "chai-as-promised";
-import { resolveSpeechWithWITAI, wavUrlToBuffer } from "../src/index";
+import { resolveSpeechWithWITAI } from "../src/index";
 import config from "./env";
+import { wavUrlToBuffer } from "./utils";
 
 chai.use(chaiAsPRosmied);
 const { expect } = chai;
@@ -13,7 +14,7 @@ const speechRecognitionSamples = [
   ],
 ];
 
-describe("witAI test", function () {
+describe("witAI test", function witAiTest() {
   this.timeout(16000);
   const [url, text] = speechRecognitionSamples[0];
   it("Speech recognition", async () => {
@@ -22,14 +23,6 @@ describe("witAI test", function () {
       key: config.WITAI_KEY,
     });
     expect(response.toLowerCase()).to.equal(text);
-  });
-  it("Bad request data throws error", () => {
-    const badAudioBuffer = Buffer.from("test");
-    return expect(
-      resolveSpeechWithWITAI(badAudioBuffer, {
-        key: config.WITAI_KEY,
-      })
-    ).to.be.rejectedWith("Wrong request data");
   });
   it("Empty request body throws error", () => {
     const emptyBuffer = Buffer.from("");
