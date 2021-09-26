@@ -1,10 +1,12 @@
-import { Client, User } from "discord.js";
 import {
   EndBehaviorType,
+  entersState,
   getVoiceConnection,
   VoiceConnection,
   VoiceConnectionStatus,
 } from "@discordjs/voice";
+import { Client, User } from "discord.js";
+import prism from "prism-media";
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { convertStereoToMono, getDurationFromMonoBuffer } from "../utils/audio";
 import VoiceMessage from "./voiceMessage";
@@ -44,15 +46,13 @@ export default class DiscordSR {
 
   speechOptions: DiscordSROptions;
 
-  constructor(
-    client: Client,
-    options: DiscordSROptions = {
+  constructor(client: Client, options?: DiscordSROptions) {
+    const defaultOptions = {
       lang: "en-US",
       speechRecognition: resolveSpeechWithGoogleSpeechV2,
-    }
-  ) {
+    };
     this.client = client;
-    this.speechOptions = options;
+    this.speechOptions = { ...defaultOptions, ...options };
 
     this.setupVoiceJoinEvent();
     this.setupSpeechEvent();
@@ -78,10 +78,9 @@ export default class DiscordSR {
    * Enables `speech` event on Client, which is called whenever someone stops speaking
    */
   private setupSpeechEvent(): void {
-    this.client.on("voiceJoin", (connection: VoiceConnection) => {
-      connection.once(VoiceConnectionStatus.Ready, () => {
-        this.handleSpeakingEvent(connection);
-      });
+    this.client.on("voiceJoin", async (connection: VoiceConnection) => {
+      await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
+      this.handleSpeakingEvent(connection);
     });
   }
 
@@ -99,10 +98,13 @@ export default class DiscordSR {
         },
       });
       const bufferData: Uint8Array[] = [];
-
-      opusStream.on("data", (data: Uint8Array) => {
-        bufferData.push(data);
-      });
+      opusStream
+        .pipe(
+          new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 })
+        )
+        .on("data", (data: Uint8Array) => {
+          bufferData.push(data);
+        });
 
       opusStream.on("end", async () => {
         const user = this.client.users.cache.get(userId);
@@ -131,9 +133,7 @@ export default class DiscordSR {
 
     const stereoBuffer = Buffer.concat(bufferData);
     const monoBuffer = convertStereoToMono(stereoBuffer);
-
-    const duration = getDurationFromMonoBuffer(stereoBuffer);
-
+    const duration = getDurationFromMonoBuffer(monoBuffer);
     if (duration < 1 || duration > 19) return undefined;
 
     let content;
