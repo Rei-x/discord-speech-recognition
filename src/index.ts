@@ -1,17 +1,17 @@
 export {
   default as DiscordSR,
+  DiscordSROptions,
   SpeechRecognition as speechRecognition,
   SpeechRecognitionOptions,
-  DiscordSROptions,
 } from "./bot/discordSR";
-export { speech, voiceJoin } from "./events";
 export { default as VoiceMessage } from "./bot/voiceMessage";
+export { audioStreamError, speech, voiceJoin } from "./events";
 export {
-  resolveSpeechWithGoogleSpeechV2,
   GoogleSpeechV2Options,
+  resolveSpeechWithGoogleSpeechV2,
 } from "./speechRecognition/googleV2";
 export {
   resolveSpeechWithWITAI,
   WitaiOptions as WITAIOptions,
 } from "./speechRecognition/witAI";
-export { wavUrlToBuffer, getDurationFromMonoBuffer } from "./utils/audio";
+export { getDurationFromMonoBuffer, wavUrlToBuffer } from "./utils/audio";

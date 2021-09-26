@@ -90,6 +90,10 @@ export default class DiscordSR {
       });
       const bufferData: Uint8Array[] = [];
 
+      audioStream.on("error", (error) => {
+        this.client.emit("audioStreamError", error);
+      });
+
       audioStream.on("data", (data) => {
         bufferData.push(data);
       });
