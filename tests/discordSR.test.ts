@@ -1,15 +1,15 @@
 /* eslint-disable no-invalid-this */
-import { expect } from "chai";
-import { Client, Guild, Intents, VoiceChannel } from "discord.js";
-import { once } from "events";
 import {
   createAudioPlayer,
   createAudioResource,
   StreamType,
 } from "@discordjs/voice";
-import { TestManager } from "./utils";
+import { expect } from "chai";
+import { Client, Guild, Intents, VoiceChannel } from "discord.js";
+import { once } from "events";
 import { DiscordSR, resolveSpeechWithWITAI, VoiceMessage } from "../src/index";
 import config from "./env";
+import { TestManager } from "./utils";
 
 const speechRecognitionSamples = [
   [
@@ -75,7 +75,7 @@ describe("DiscordSR tests", () => {
         }
       }));
     describe("Events", () => {
-      before(function before() {
+      before(async function before() {
         this.timeout(6000);
         return tm.setTestVoiceChannel(config.GUILD_ID);
       });

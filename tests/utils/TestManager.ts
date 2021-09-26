@@ -43,7 +43,7 @@ export default class TestManager extends EventEmitter {
   async setTestVoiceChannel(guildID: string): Promise<void> {
     const guild = this.getGuildFromID(guildID);
     if (!guild) return;
-    this.setOrCreateTestVoiceChannels(guild);
+    await this.setOrCreateTestVoiceChannels(guild);
   }
 
   async connectToVoiceChannel(
@@ -87,16 +87,14 @@ export default class TestManager extends EventEmitter {
   }
 
   private getTestChannel(guild: Guild): VoiceChannel | undefined {
-    const testChannel = guild.channels.cache.find(
+    return guild.channels.cache.find(
       (channel) => channel.type === "GUILD_VOICE" && channel.name === "test"
     ) as VoiceChannel;
-    return testChannel;
   }
 
   private async createTestChannel(guild: Guild): Promise<VoiceChannel> {
-    const testChannel = await guild.channels.create("test", {
+    return guild.channels.create("test", {
       type: "GUILD_VOICE",
     });
-    return testChannel;
   }
 }
