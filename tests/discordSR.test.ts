@@ -39,7 +39,7 @@ describe("DiscordSR tests", () => {
       expect(discordSR.speechOptions.lang).to.be.equal("pl");
     });
   });
-  describe.only("Test bot", () => {
+  describe("Test bot", () => {
     let tm: TestManager;
     before(function before() {
       this.timeout(4000);
@@ -86,8 +86,9 @@ describe("DiscordSR tests", () => {
       });
 
       it("Voice join event", async () => {
-        tm.connectToVoiceChannel("client");
+        const voiceConnection = tm.connectToVoiceChannel("client");
         await once(tm.client, "voiceJoin");
+        (await voiceConnection).destroy();
       });
 
       it("Default speech recognition", async function testSpeechRecognition() {
@@ -101,7 +102,7 @@ describe("DiscordSR tests", () => {
         });
 
         const testConnection = await tm.connectToVoiceChannel("testClient");
-        // await tm.connectToVoiceChannel("client");
+        await tm.connectToVoiceChannel("client");
         testConnection.subscribe(player);
 
         player.play(resource);
