@@ -25,6 +25,7 @@ export interface SpeechRecognition {
  * Options that will be passed to [[speechRecognition]] function
  */
 export interface DiscordSROptions {
+  group?: string;
   lang?: string;
   speechRecognition?: SpeechRecognition;
 }
@@ -65,7 +66,10 @@ export default class DiscordSR {
       if (newVoiceState.channel)
         this.client.emit(
           "voiceJoin",
-          getVoiceConnection(newVoiceState.channel.guild.id)
+          getVoiceConnection(
+            newVoiceState.channel.guild.id,
+            this.speechOptions.group
+          )
         );
     });
   }

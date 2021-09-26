@@ -27,7 +27,7 @@ export default class TestManager extends EventEmitter {
     };
     this.testClient = new Client(clientOptions);
     this.client = new Client(clientOptions);
-    this.discordSR = new DiscordSR(this.client);
+    this.discordSR = new DiscordSR(this.client, { group: "client" });
 
     this.client.login(mainToken);
     this.testClient.login(testToken);
@@ -56,9 +56,11 @@ export default class TestManager extends EventEmitter {
     if (!channel) throw new Error("Voice channel doesn't exist");
 
     const connection = joinVoiceChannel({
+      group: type,
       channelId: channel.id,
       guildId: channel.guild.id,
       adapterCreator: channel.guild.voiceAdapterCreator,
+      selfDeaf: false,
     });
 
     try {

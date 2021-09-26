@@ -39,7 +39,7 @@ describe("DiscordSR tests", () => {
       expect(discordSR.speechOptions.lang).to.be.equal("pl");
     });
   });
-  describe("Test bot", () => {
+  describe.only("Test bot", () => {
     let tm: TestManager;
     before(function before() {
       this.timeout(4000);
@@ -100,10 +100,9 @@ describe("DiscordSR tests", () => {
           inputType: StreamType.Arbitrary,
         });
 
-        tm.connectToVoiceChannel("client");
-        const testConnection = tm.connectToVoiceChannel("testClient");
-
-        (await testConnection).subscribe(player);
+        const testConnection = await tm.connectToVoiceChannel("testClient");
+        // await tm.connectToVoiceChannel("client");
+        testConnection.subscribe(player);
 
         player.play(resource);
 
