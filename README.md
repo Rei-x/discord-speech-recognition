@@ -26,8 +26,14 @@ const client = new Client({
 addSpeechEvent(client);
 
 client.on("messageCreate", (msg) => {
-  if (msg.member?.voice.channel) {
-    msg.member.voice.channel.join();
+  const voiceChannel = msg.member?.voice.channel;
+  if (voiceChannel) {
+    joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId: voiceChannel.guild.id,
+      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+      selfDeaf: false,
+    });
   }
 });
 
