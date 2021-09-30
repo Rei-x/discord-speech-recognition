@@ -29,7 +29,7 @@ async function extractSpeechIntent(
   if (response.status !== 200)
     throw new Error(`Api error, code: ${response.status}`);
 
-  const data = response.json();
+  const data = (response.json() as Promise<WitaiResponse>);
   return data;
 }
 
