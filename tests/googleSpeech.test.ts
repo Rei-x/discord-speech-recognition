@@ -18,6 +18,7 @@ describe("Google Speech V2 test", () => {
   const [url, text] = speechRecognitionSamples[0];
   it("Speech recognition", async function speechRecognition() {
     this.timeout(16000);
+    const [url, text] = speechRecognitionSamples[0];
     const audioBuffer = await wavUrlToBuffer(url);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
     expect(response.toLowerCase()).to.contain(text);
