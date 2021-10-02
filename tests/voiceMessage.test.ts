@@ -1,70 +1,48 @@
 /* eslint-disable no-invalid-this */
-import {expect} from 'chai';
-import {getDurationFromMonoBuffer, VoiceMessage, wavUrlToBuffer} from '../src';
-import {data} from './sampleData.json';
-import fs from 'fs';
-import wav from 'wav';
-import {Writable} from 'stream';
+import { expect } from "chai";
+import fs from "fs";
+import { VoiceMessage } from "../src";
+import { getDurationFromMonoBuffer } from "../src/utils/audio";
+import { data } from "./sampleData.json";
+import { readFileToAudioBuffer, wavUrlToBuffer } from "./utils";
 
-describe('Voice message', function() {
-  let filename: string; let audioBuffer: Buffer; let voiceMessage: VoiceMessage;
-  before(async function() {
+describe("Voice message", () => {
+  const mockData = undefined as never;
+
+  const filename = "./test.wav";
+
+  let audioBuffer: Buffer;
+  let voiceMessage: VoiceMessage;
+
+  before(async function before() {
     this.timeout(6000);
-    filename = './test.wav';
     audioBuffer = await wavUrlToBuffer(data[0].url);
-    voiceMessage = new VoiceMessage(undefined, {
-      audioBuffer,
-      author: undefined,
-      duration: undefined,
-    }, undefined);
+    voiceMessage = new VoiceMessage({
+      client: mockData,
+      data: {
+        audioBuffer,
+        author: mockData,
+        duration: mockData,
+        connection: mockData,
+      },
+      channel: mockData,
+    });
   });
-  it('Save to .wav file', async function() {
+
+  it("Save to .wav file", async function saveToWav() {
     this.timeout(4000);
     voiceMessage.saveToFile(filename);
     expect(fs.existsSync(filename));
-    const readAudioBuffer = await readFileToAudioBuffer(filename);
-    expect(audioBuffer.toString()).to.be.equal(readAudioBuffer.toString());
+    const audioBufferFromFile = await readFileToAudioBuffer(filename);
+    expect(audioBuffer.toString()).to.be.equal(audioBufferFromFile.toString());
   });
-  it('Duration', function() {
+
+  it("Duration", () => {
     const duration = getDurationFromMonoBuffer(voiceMessage.audioBuffer);
-    expect(duration.toPrecision(3)).to.be.equal('2.09');
+    expect(duration.toPrecision(3)).to.be.equal("2.09");
   });
-  after(function() {
+
+  after(() => {
     fs.unlinkSync(filename);
   });
 });
-
-async function readFileToAudioBuffer(filename: fs.PathLike): Promise<Buffer> {
-  const file = fs.createReadStream(filename);
-
-  const buffs: Uint8Array[] = [];
-  const pcmDataStream = createWritable();
-
-  writeAudioDataToWavStream(file, pcmDataStream);
-
-  return new Promise<Buffer>((resolve) => {
-    pcmDataStream.on('finish', () => {
-      const audioBuffer = Buffer.concat(buffs);
-      resolve(audioBuffer);
-    });
-  },
-  );
-
-  function createWritable() {
-    return new Writable({
-      write(chunk, _encoding, callback) {
-        buffs.push(chunk);
-        callback();
-      },
-    });
-  }
-
-  function writeAudioDataToWavStream(stream: fs.ReadStream, streamReader: Writable) {
-    const reader = new wav.Reader();
-    reader.on('format', () => {
-      reader.pipe(streamReader);
-    });
-    stream.pipe(reader);
-  }
-}
-

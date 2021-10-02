@@ -1,2 +1,3 @@
 tasks:
-  - init: npm i
+  - name: Install dependencies
+    init: nvm install 16 && npm i

@@ -9,5 +9,5 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 ## Example usage
 
 ```javascript
-[[include:simpleBot.js]]
+[[include:simpleBot/index.js]]
 ```

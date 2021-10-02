@@ -1,6 +1,3 @@
-import axios from "axios";
-import { Writable } from "stream";
-import wav from "wav";
 /**
  * Convert stereo audio buffer to mono
  * @param input Buffer of stereo audio
@@ -16,35 +13,6 @@ export function convertStereoToMono(input: Buffer): Buffer {
     j += 1;
   }
   return Buffer.from(monoData);
-}
-
-export async function wavUrlToBuffer(url: string): Promise<Buffer> {
-  const response = await axios({
-    url,
-    method: "GET",
-    responseType: "stream",
-  });
-  const buffs: Uint8Array[] = [];
-  const pcmDataStream = new Writable({
-    write(chunk, _encoding, callback) {
-      buffs.push(chunk);
-      callback();
-    },
-    emitClose: true,
-  });
-
-  const reader = new wav.Reader();
-  reader.on("format", () => {
-    reader.pipe(pcmDataStream);
-  });
-  response.data.pipe(reader);
-
-  return new Promise((resolve) => {
-    pcmDataStream.on("finish", () => {
-      const audioBuffer = Buffer.concat(buffs);
-      resolve(audioBuffer);
-    });
-  });
 }
 
 export function getDurationFromMonoBuffer(buffer: Buffer): number {
