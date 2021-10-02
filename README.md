@@ -4,17 +4,25 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ## Installation
 
-`npm i discord-speech-recognition`
+**Discord.js v13**:
 
-You need also dependency for voice, recommended:  
-`npm i @discordjs/opus`  
+`npm i discord-speech-recognition@beta`
+
+**Discord.js v12**:
+
+`npm i discord-speech-recognition@1`
+
+You need also dependency for voice, recommended:
+
+`npm i @discordjs/opus`
+
 You can read more here: <https://discordjs.guide/voice/#installing-dependencies>
 
 ## Docs
 
 <https://discordsr.netlify.app/>
 
-## Example usage
+## Example usage for discord.js v13
 
 ```javascript
 const { Client, Message } = require("discord.js");
