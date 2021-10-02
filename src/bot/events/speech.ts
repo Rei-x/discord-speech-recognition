@@ -10,16 +10,6 @@ import { SpeechOptions } from "../speechOptions";
 import { createVoiceMessage } from "../voiceMessage";
 
 /**
- * Enables `speech` event on Client, which is called whenever someone stops speaking
- */
-export default (client: Client, speechOptions: SpeechOptions): void => {
-  client.on("voiceJoin", async (connection: VoiceConnection) => {
-    await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
-    handleSpeakingEvent({ client, speechOptions, connection });
-  });
-};
-
-/**
  * Starts listening on connection and emits `speech` event when someone stops speaking
  * @param connection Connection to listen
  */
@@ -62,5 +52,15 @@ const handleSpeakingEvent = ({
       });
       if (voiceMessage) client.emit("speech", voiceMessage);
     });
+  });
+};
+
+/**
+ * Enables `speech` event on Client, which is called whenever someone stops speaking
+ */
+export default (client: Client, speechOptions: SpeechOptions): void => {
+  client.on("voiceJoin", async (connection: VoiceConnection) => {
+    await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
+    handleSpeakingEvent({ client, speechOptions, connection });
   });
 };
