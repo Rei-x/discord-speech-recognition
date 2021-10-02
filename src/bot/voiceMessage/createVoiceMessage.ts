@@ -27,15 +27,15 @@ export default async ({
   const duration = getDurationFromMonoBuffer(monoBuffer);
   if (duration < 1 || duration > 19) return undefined;
 
-  let content;
-  let error;
+  let content: string | undefined;
+  let error: Error | undefined;
   try {
     content = await speechOptions.speechRecognition?.(
       monoBuffer,
       speechOptions
     );
   } catch (e) {
-    error = e;
+    error = e as Error;
   }
 
   const channel = client.channels.cache.get(connection.joinConfig.channelId);

@@ -13,7 +13,7 @@ export interface VoiceMessageData {
   duration: number;
   audioBuffer: Buffer;
   content?: string;
-  error?: string;
+  error?: Error;
   connection: VoiceConnection;
   author: User;
 }
@@ -43,7 +43,7 @@ export default class VoiceMessage {
   /**
    * If there was any error during handling speech event, this will be set
    */
-  error?: string;
+  error?: Error;
 
   connection: VoiceConnection;
 
