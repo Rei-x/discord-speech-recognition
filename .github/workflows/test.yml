@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 12
-      - run: npm ci
+          node-version: 16
+      - run: npm i
       - run: npm run lint && npm run coverage
         env:
             BOT_TOKEN: ${{secrets.BOT_TOKEN}}
