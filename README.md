@@ -6,15 +6,21 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 **Discord.js v13**:
 
-`npm i discord-speech-recognition@beta`
+```
+npm i discord-speech-recognition
+```
 
 **Discord.js v12**:
 
-`npm i discord-speech-recognition@1`
+```
+npm i discord-speech-recognition@1
+```
 
 You need also dependency for voice, recommended:
 
-`npm i @discordjs/opus`
+```
+npm i @discordjs/opus
+```
 
 You can read more here: <https://discordjs.guide/voice/#installing-dependencies>
 
