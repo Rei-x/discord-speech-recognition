@@ -1,23 +1,27 @@
 import fetch from "node-fetch";
+import { MessageResponse } from "node-wit";
 
 export interface WitaiOptions {
   key?: string;
 }
 
-interface WitaiGoodResponse {
-  text: string;
-}
-interface WitaiBadResponse {
-  _text: string;
-}
-
-type WitaiResponse = WitaiGoodResponse | WitaiBadResponse;
+/**
+ * There is an issue with wit.ai response from /speech endpoint, which returns multiple root objects. You can check the docs here: https://wit.ai/docs/http/20210928/#post__speech_link
+ * This function converts response text to valid json by wrapping it in array and fixing commas.
+ * @param text
+ * @returns
+ */
+const formatWitaiResponse = (text: string): Array<MessageResponse> => {
+  const fixedCommas = text.replaceAll("\n}\r\n", "},");
+  const wrappedInArray = `[${fixedCommas}]`;
+  return JSON.parse(wrappedInArray);
+};
 
 async function extractSpeechIntent(
   key: string,
   audioBuffer: Buffer,
   contenttype: string
-): Promise<WitaiResponse> {
+): Promise<MessageResponse> {
   const response = await fetch("https://api.wit.ai/speech", {
     method: "post",
     body: audioBuffer,
@@ -29,8 +33,12 @@ async function extractSpeechIntent(
   if (response.status !== 200)
     throw new Error(`Api error, code: ${response.status}`);
 
-  const data = response.json() as Promise<WitaiResponse>;
-  return data;
+  const data = formatWitaiResponse(await response.text());
+
+  const latestMessage = data.at(-1);
+  if (!latestMessage) throw new Error(`Invalid API response`);
+
+  return latestMessage;
 }
 
 export async function resolveSpeechWithWITAI(
@@ -44,7 +52,5 @@ export async function resolveSpeechWithWITAI(
     "audio/raw;encoding=signed-integer;bits=16;rate=48k;endian=little";
   const output = await extractSpeechIntent(key, audioBuffer, contenttype);
 
-  if ("_text" in output) throw new Error("Wrong request data");
-  if ("text" in output) return output.text;
-  throw new Error("Something went very wrong");
+  return output.text;
 }
