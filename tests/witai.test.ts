@@ -1,7 +1,7 @@
 /* eslint-disable no-invalid-this */
 import chai from "chai";
 import chaiAsPRosmied from "chai-as-promised";
-import { resolveSpeechWithWITAI } from "../src/index";
+import { resolveSpeechWithWitai } from "../src/index";
 import config from "./env";
 import { wavUrlToBuffer } from "./utils";
 
@@ -14,12 +14,12 @@ const speechRecognitionSamples = [
   ],
 ];
 
-describe("witAI test", function witAiTest() {
+describe("wit.ai test", function witAiTest() {
   this.timeout(16000);
   const [url, text] = speechRecognitionSamples[0];
   it("Speech recognition", async () => {
     const audioBuffer = await wavUrlToBuffer(url);
-    const response = await resolveSpeechWithWITAI(audioBuffer, {
+    const response = await resolveSpeechWithWitai(audioBuffer, {
       key: config.WITAI_KEY,
     });
     expect(response.toLowerCase()).to.equal(text);
@@ -27,7 +27,7 @@ describe("witAI test", function witAiTest() {
   it("Empty request body throws error", () => {
     const emptyBuffer = Buffer.from("");
     return expect(
-      resolveSpeechWithWITAI(emptyBuffer, {
+      resolveSpeechWithWitai(emptyBuffer, {
         key: config.WITAI_KEY,
       })
     ).to.be.rejectedWith("Api error, code: 400");
@@ -35,7 +35,7 @@ describe("witAI test", function witAiTest() {
   it("Empty token throws error", async () => {
     const audioBuffer = await wavUrlToBuffer(url);
     return expect(
-      resolveSpeechWithWITAI(audioBuffer, {
+      resolveSpeechWithWitai(audioBuffer, {
         key: "",
       })
     ).to.be.rejectedWith("wit.ai API key wasn't specified.");
@@ -43,7 +43,7 @@ describe("witAI test", function witAiTest() {
   it("Bad token throws error", async () => {
     const audioBuffer = await wavUrlToBuffer(url);
     return expect(
-      resolveSpeechWithWITAI(audioBuffer, {
+      resolveSpeechWithWitai(audioBuffer, {
         key: "d",
       })
     ).to.be.rejectedWith("Api error, code: 400");

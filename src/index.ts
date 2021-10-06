@@ -10,6 +10,6 @@ export {
   resolveSpeechWithGoogleSpeechV2,
 } from "./speechRecognition/googleV2";
 export {
-  resolveSpeechWithWITAI,
-  WitaiOptions as WITAIOptions,
-} from "./speechRecognition/witAI";
+  resolveSpeechWithWitai,
+  WitaiOptions,
+} from "./speechRecognition/witai";

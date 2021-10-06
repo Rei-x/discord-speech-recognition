@@ -17,7 +17,7 @@ const formatWitaiResponse = (text: string): Array<MessageResponse> => {
   return JSON.parse(wrappedInArray);
 };
 
-async function extractSpeechIntent(
+async function extractSpeechText(
   key: string,
   audioBuffer: Buffer,
   contenttype: string
@@ -41,7 +41,7 @@ async function extractSpeechIntent(
   return latestMessage;
 }
 
-export async function resolveSpeechWithWITAI(
+export async function resolveSpeechWithWitai(
   audioBuffer: Buffer,
   options?: WitaiOptions
 ): Promise<string> {
@@ -50,7 +50,7 @@ export async function resolveSpeechWithWITAI(
 
   const contenttype =
     "audio/raw;encoding=signed-integer;bits=16;rate=48k;endian=little";
-  const output = await extractSpeechIntent(key, audioBuffer, contenttype);
+  const output = await extractSpeechText(key, audioBuffer, contenttype);
 
   return output.text;
 }
