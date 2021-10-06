@@ -1,15 +1,13 @@
 import {
   entersState,
+  getVoiceConnection,
   joinVoiceChannel,
   VoiceConnection,
   VoiceConnectionStatus,
 } from "@discordjs/voice";
 import { Client, ClientOptions, Guild, VoiceChannel } from "discord.js";
-import { EventEmitter } from "events";
-import { addSpeechEvent } from "../../src";
-import Waiter from "./WaitForBots";
 
-export default class TestManager extends EventEmitter {
+export default class TestManager {
   testClient: Client;
 
   client: Client;
@@ -18,30 +16,48 @@ export default class TestManager extends EventEmitter {
 
   clientVoiceChannel: VoiceChannel | undefined;
 
+  clientToken: string;
+
+  testToken: string;
+
   constructor(mainToken: string, testToken: string) {
-    super();
-    const clientOptions: ClientOptions = {
-      intents: ["GUILD_VOICE_STATES", "GUILD_MESSAGES", "GUILDS"],
-    };
-    this.testClient = new Client(clientOptions);
-    this.client = new Client(clientOptions);
-    addSpeechEvent(this.client, { group: "client" });
+    this.clientToken = mainToken;
+    this.testToken = testToken;
 
-    this.client.login(mainToken);
-    this.testClient.login(testToken);
-
-    const waiter = new Waiter([this.client, this.testClient]);
-    waiter.waitForBots(this.emitReadyEvent.bind(this));
+    this.testClient = new Client(TestManager.clientOptions);
+    this.client = new Client(TestManager.clientOptions);
   }
 
-  emitReadyEvent(): void {
-    this.emit("ready");
+  static get clientOptions(): ClientOptions {
+    return {
+      intents: ["GUILD_VOICE_STATES", "GUILD_MESSAGES", "GUILDS"],
+    };
+  }
+
+  resetClients() {
+    this.client = new Client(TestManager.clientOptions);
+    this.testClient = new Client(TestManager.clientOptions);
+  }
+
+  async loginClients() {
+    this.client.login(this.clientToken);
+    this.testClient.login(this.testToken);
+    const isClientReady = this.waitForClientToBeReady(this.client);
+    const isTestClientReady = this.waitForClientToBeReady(this.testClient);
+    return Promise.all([isClientReady, isTestClientReady]);
   }
 
   async setTestVoiceChannel(guildID: string): Promise<void> {
     const guild = this.getGuildFromID(guildID);
     if (!guild) return;
     await this.setOrCreateTestVoiceChannels(guild);
+  }
+
+  async disconnectFromVoiceChannel(
+    guildID: string,
+    type: "client" | "testClient"
+  ) {
+    getVoiceConnection(guildID, type)?.destroy();
   }
 
   async connectToVoiceChannel(
@@ -68,6 +84,12 @@ export default class TestManager extends EventEmitter {
       connection.destroy();
       throw error;
     }
+  }
+
+  private async waitForClientToBeReady(client: Client) {
+    return new Promise<void>((resolve) =>
+      client.once("ready", () => resolve())
+    );
   }
 
   private getGuildFromID(guildID: string) {
