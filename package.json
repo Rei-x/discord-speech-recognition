@@ -17,17 +17,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rei-666/discord-speech-recognition.git"
+    "url": "git+https://github.com/Rei-x/discord-speech-recognition.git"
   },
   "keywords": [
     "discord.js",
     "discord",
     "speechrecognition"
   ],
-  "author": "Rei666",
+  "author": "Rei-x",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Rei-666/discord-speech-recognition/issues"
+    "url": "https://github.com/Rei-x/discord-speech-recognition/issues"
   },
   "homepage": "https://discordsr.netlify.app/",
   "engines": {
