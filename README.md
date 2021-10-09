@@ -10,6 +10,8 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 npm i discord-speech-recognition
 ```
 
+Checkout simpleBot example in examples directory for ready-to-use bot.
+
 **Discord.js v12**:
 
 ```
