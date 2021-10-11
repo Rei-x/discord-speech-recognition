@@ -2,20 +2,8 @@ import { VoiceConnection } from "@discordjs/voice";
 import VoiceMessage from "./bot/voiceMessage";
 
 /**
- * Emitted when bot joins a voice channel
- * <hr>
+ * Emitted when bot joins a voice channel and has not started speech recognition in it
  *
- * Example usage:
- * ```javascript
- * client.on('voiceJoin', (connection) => {
- *   const player = createAudioPlayer();
- *   const resource = createAudioResource("./music.mp3", {
- *   inputType: StreamType.Arbitrary,
- *   });
- *
- *   connection.subscribe(player);
- *   player.play(resource);
- * });
  * ```
  * @event
  */

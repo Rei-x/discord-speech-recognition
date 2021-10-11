@@ -22,37 +22,40 @@ const handleSpeakingEvent = ({
   connection: VoiceConnection;
   speechOptions: SpeechOptions;
 }) => {
-  connection.receiver.speaking.on("start", (userId) => {
-    const { receiver } = connection;
-    const opusStream = receiver.subscribe(userId, {
-      end: {
-        behavior: EndBehaviorType.AfterSilence,
-        duration: 100,
-      },
-    });
-    const bufferData: Uint8Array[] = [];
-    opusStream
-      .pipe(
-        new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 })
-      )
-      .on("data", (data: Uint8Array) => {
-        bufferData.push(data);
+  connection.receiver.speaking.on(
+    "start",
+    function handleSpeechEventOnConnectionReceiver(userId) {
+      const { receiver } = connection;
+      const opusStream = receiver.subscribe(userId, {
+        end: {
+          behavior: EndBehaviorType.AfterSilence,
+          duration: 100,
+        },
       });
+      const bufferData: Uint8Array[] = [];
+      opusStream
+        .pipe(
+          new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 })
+        )
+        .on("data", (data: Uint8Array) => {
+          bufferData.push(data);
+        });
 
-    opusStream.on("end", async () => {
-      const user = client.users.cache.get(userId);
-      if (!user) return;
+      opusStream.on("end", async () => {
+        const user = client.users.cache.get(userId);
+        if (!user) return;
 
-      const voiceMessage = await createVoiceMessage({
-        client,
-        bufferData,
-        user,
-        connection,
-        speechOptions,
+        const voiceMessage = await createVoiceMessage({
+          client,
+          bufferData,
+          user,
+          connection,
+          speechOptions,
+        });
+        if (voiceMessage) client.emit("speech", voiceMessage);
       });
-      if (voiceMessage) client.emit("speech", voiceMessage);
-    });
-  });
+    }
+  );
 };
 
 /**
