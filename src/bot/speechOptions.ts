@@ -18,4 +18,8 @@ export interface SpeechOptions {
   lang?: string;
   speechRecognition?: SpeechRecognition;
   key?: string;
+  /**
+   * Defaults to true
+   */
+  ignoreBots?: boolean;
 }

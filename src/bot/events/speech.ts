@@ -25,6 +25,10 @@ const handleSpeakingEvent = ({
   connection.receiver.speaking.on(
     "start",
     function handleSpeechEventOnConnectionReceiver(userId) {
+      if (speechOptions.ignoreBots && client.users.cache.get(userId)?.bot) {
+        return;
+      }
+
       const { receiver } = connection;
       const opusStream = receiver.subscribe(userId, {
         end: {
