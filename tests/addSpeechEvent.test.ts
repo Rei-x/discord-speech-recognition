@@ -64,6 +64,7 @@ describe("Test bot", () => {
 
         addSpeechEvent(tm.client, {
           group: "client",
+          ignoreBots: false,
           ...speechOptions,
         });
 

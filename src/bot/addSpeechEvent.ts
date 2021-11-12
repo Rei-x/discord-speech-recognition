@@ -20,9 +20,10 @@ import { SpeechOptions } from "./speechOptions";
  * ```
  */
 export const addSpeechEvent = (client: Client, options?: SpeechOptions) => {
-  const defaultOptions = {
+  const defaultOptions: SpeechOptions = {
     lang: "en-US",
     speechRecognition: resolveSpeechWithGoogleSpeechV2,
+    ignoreBots: true,
   };
   const speechOptions = { ...defaultOptions, ...options };
 
