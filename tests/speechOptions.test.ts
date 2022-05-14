@@ -43,7 +43,7 @@ describe("Speech options", () => {
 
     return new Promise<void>((resolve, reject) => {
       once(tm.client, "speech").then(() =>
-        reject("Bot recognized speech, with ignoreBots set to true")
+        reject("Bot recognized speech with ignoreBots set to true")
       );
       setTimeout(() => resolve(), 4000);
     });
