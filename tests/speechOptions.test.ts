@@ -23,7 +23,7 @@ describe("Speech options", () => {
   });
 
   it("Ignore bots", async function ignoreBots() {
-    this.timeout(5000);
+    this.timeout(7000);
 
     addSpeechEvent(tm.client, {
       group: "client",
