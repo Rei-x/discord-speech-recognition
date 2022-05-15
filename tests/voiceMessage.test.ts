@@ -3,7 +3,7 @@ import { expect } from "chai";
 import fs from "fs";
 import { VoiceMessage } from "../src";
 import { getDurationFromMonoBuffer } from "../src/utils/audio";
-import { data } from "./sampleData.json";
+import sampleData from "./sampleData";
 import { readFileToAudioBuffer, wavUrlToBuffer } from "./utils";
 
 describe("Voice message", () => {
@@ -16,7 +16,8 @@ describe("Voice message", () => {
 
   before(async function before() {
     this.timeout(6000);
-    audioBuffer = await wavUrlToBuffer(data[0].url);
+
+    audioBuffer = await wavUrlToBuffer(sampleData.normal.url);
     voiceMessage = new VoiceMessage({
       client: mockData,
       data: {
@@ -31,6 +32,7 @@ describe("Voice message", () => {
 
   it("Save to .wav file", async function saveToWav() {
     this.timeout(4000);
+
     voiceMessage.saveToFile(filename);
     expect(fs.existsSync(filename));
     const audioBufferFromFile = await readFileToAudioBuffer(filename);

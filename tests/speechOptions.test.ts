@@ -7,8 +7,8 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { once } from "events";
 import { addSpeechEvent } from "../src";
-import config from "./env";
-import { data } from "./sampleData.json";
+import config from "./config";
+import sampleData from "./sampleData";
 import { TestManager } from "./utils";
 
 chai.use(chaiAsPromised);
@@ -31,7 +31,7 @@ describe("Speech options", () => {
     });
 
     const player = createAudioPlayer();
-    const resource = createAudioResource(data[0].url, {
+    const resource = createAudioResource(sampleData.normal.url, {
       inputType: StreamType.Arbitrary,
     });
     const connection = await tm.connectToVoiceChannel("testClient");

@@ -14,15 +14,9 @@ import {
   SpeechOptions,
   VoiceMessage,
 } from "../src/index";
-import config from "./env";
+import config from "./config";
+import sampleData from "./sampleData";
 import { TestManager } from "./utils";
-
-const speechRecognitionSamples = [
-  [
-    "https://cdn.discordapp.com/attachments/838767598778843149/841292361291923487/ttsMP3.com_VoiceText_2021-5-10_14_35_18.mp3",
-    "alexa play despacito",
-  ],
-];
 
 describe("Test bot", () => {
   let tm: TestManager;
@@ -80,10 +74,8 @@ describe("Test bot", () => {
       it("Default speech recognition", async function testSpeechRecognition() {
         this.timeout(7000);
 
-        const [url, text] = speechRecognitionSamples[0];
-
         const player = createAudioPlayer();
-        const resource = createAudioResource(url, {
+        const resource = createAudioResource(sampleData.normal.url, {
           inputType: StreamType.Arbitrary,
         });
 
@@ -96,7 +88,9 @@ describe("Test bot", () => {
         return new Promise((resolve, reject) => {
           tm.client.on("speech", (msg: VoiceMessage) => {
             try {
-              expect(msg.content?.toLowerCase()).to.be.equal(text);
+              expect(msg.content?.toLowerCase()).to.contain(
+                sampleData.normal.text
+              );
               resolve();
             } catch (error) {
               reject(error);

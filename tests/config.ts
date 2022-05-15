@@ -1,4 +1,3 @@
-import { AnyARecord } from "dns";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -19,11 +18,9 @@ const getConfigObject = (variables: Array<string>) => {
   return config;
 };
 
-const config = getConfigObject([
+export default getConfigObject([
   "BOT_TOKEN",
   "TESTBOT_TOKEN",
   "GUILD_ID",
   "WITAI_KEY",
 ]);
-
-export default config;
