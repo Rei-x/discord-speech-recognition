@@ -23,7 +23,7 @@ client.on("interactionCreate", async (interaction) => {
       interaction.member.voice.channel
     ) {
       const channel = interaction.member.voice.channel;
-      connection = joinVoiceChannel({
+      joinVoiceChannel({
         channelId: channel.id,
         guildId: channel.guild.id,
         selfDeaf: false,
