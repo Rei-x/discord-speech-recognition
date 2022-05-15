@@ -22,7 +22,9 @@ const writeAudioDataToWavStream = (
   stream.pipe(reader);
 };
 
-export const readFileToAudioBuffer = async (filename: fs.PathLike): Promise<Buffer> => {
+export const readFileToAudioBuffer = async (
+  filename: fs.PathLike
+): Promise<Buffer> => {
   const file = fs.createReadStream(filename);
 
   const buffs: Uint8Array[] = [];
