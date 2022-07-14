@@ -59,6 +59,9 @@ client.on("messageCreate", (msg) => {
 });
 
 client.on("speech", (msg) => {
+  // If bot didn't recognize speech, content will be empty
+  if (!msg.content) return;
+
   msg.author.send(msg.content);
 });
 

@@ -47,6 +47,8 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("speech", (msg) => {
+  if (!msg.content) return;
+
   msg.author.send(msg.content);
 });
 
