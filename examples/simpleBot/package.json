@@ -12,7 +12,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.6.0",
-    "discord-speech-recognition": "^2.0.0",
+    "discord-speech-recognition": "^2.2.0",
     "discord.js": "^13.1.0",
     "sodium": "^3.0.2"
   }
