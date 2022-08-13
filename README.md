@@ -4,7 +4,7 @@ This is an extension for [discord.js](https://discord.js.org) library that makes
 
 ## Installation
 
-**Discord.js v13**:
+**Discord.js v14**:
 
 ```
 npm i discord-speech-recognition
@@ -12,37 +12,36 @@ npm i discord-speech-recognition
 
 Checkout simpleBot example in examples directory for ready-to-use bot.
 
+**Discord.js v13**:
+
+```
+npm i discord-speech-recognition@2
+```
+
 **Discord.js v12**:
 
 ```
 npm i discord-speech-recognition@1
 ```
 
-You need also dependency for voice, recommended:
-
-```
-npm i @discordjs/opus
-```
-
-You can read more here: <https://discordjs.guide/voice/#installing-dependencies>
 
 ## Docs
 
 <https://discordsr.netlify.app/>
 
-## Example usage for discord.js v13
+## Example usage for discord.js v14
 
 ```javascript
-const { Client, Intents } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 const { joinVoiceChannel } = require("@discordjs/voice");
 const { addSpeechEvent } = require("discord-speech-recognition");
 
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MESSAGES,
-  ],
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.Guilds,
+      ],
 });
 addSpeechEvent(client);
 

@@ -5,7 +5,14 @@ import {
   VoiceConnection,
   VoiceConnectionStatus,
 } from "@discordjs/voice";
-import { Client, ClientOptions, Guild, VoiceChannel } from "discord.js";
+import {
+  Client,
+  ClientOptions,
+  Guild,
+  VoiceChannel,
+  GatewayIntentBits,
+  ChannelType,
+} from "discord.js";
 
 export default class TestManager {
   testClient: Client;
@@ -30,7 +37,11 @@ export default class TestManager {
 
   static get clientOptions(): ClientOptions {
     return {
-      intents: ["GUILD_VOICE_STATES", "GUILD_MESSAGES", "GUILDS"],
+      intents: [
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.Guilds,
+      ],
     };
   }
 
@@ -110,13 +121,15 @@ export default class TestManager {
 
   private getTestChannel(guild: Guild): VoiceChannel | undefined {
     return guild.channels.cache.find(
-      (channel) => channel.type === "GUILD_VOICE" && channel.name === "test"
+      (channel) =>
+        channel.type === ChannelType.GuildVoice && channel.name === "test"
     ) as VoiceChannel;
   }
 
   private async createTestChannel(guild: Guild): Promise<VoiceChannel> {
-    return guild.channels.create("test", {
-      type: "GUILD_VOICE",
+    return guild.channels.create({
+      name: "test",
+      type: ChannelType.GuildVoice,
     });
   }
 }

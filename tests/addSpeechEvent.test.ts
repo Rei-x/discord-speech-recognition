@@ -1,4 +1,3 @@
-/* eslint-disable no-invalid-this */
 import {
   createAudioPlayer,
   createAudioResource,
@@ -72,7 +71,7 @@ describe("Test bot", () => {
       });
 
       it("Default speech recognition", async function testSpeechRecognition() {
-        this.timeout(7000);
+        this.timeout(12000);
 
         const player = createAudioPlayer();
         const resource = createAudioResource(sampleData.normal.url, {

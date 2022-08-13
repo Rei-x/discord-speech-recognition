@@ -2,6 +2,15 @@ import { getVoiceConnection, VoiceConnection } from "@discordjs/voice";
 import { Client } from "discord.js";
 import { SpeechOptions } from "../speechOptions";
 
+declare module "discord.js" {
+  interface ClientEvents {
+    /**
+     * This event is emitted when speech recognition is attached to voice connection
+     */
+    voiceJoin: [connection: VoiceConnection | undefined];
+  }
+}
+
 /**
  * It's a bit hacky solution to check if speech handler has been already attached to connection receiver
  * It does it by checking if in the listeners of speaking map exists function with the same name as function
