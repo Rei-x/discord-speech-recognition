@@ -9,6 +9,13 @@ import { Client } from "discord.js";
 import { Transform } from "stream";
 import { SpeechOptions } from "../speechOptions";
 import { createVoiceMessage } from "../voiceMessage";
+import VoiceMessage from "../voiceMessage";
+
+declare module "discord.js" {
+  interface ClientEvents {
+    speech: [voiceMessage: VoiceMessage];
+  }
+}
 
 class OpusDecodingStream extends Transform {
   encoder: OpusEncoder;
@@ -81,7 +88,11 @@ const handleSpeakingEvent = ({
  * Enables `speech` event on Client, which is called whenever someone stops speaking
  */
 export default (client: Client, speechOptions: SpeechOptions): void => {
-  client.on("voiceJoin", async (connection: VoiceConnection) => {
+  client.on("voiceJoin", async (connection) => {
+    if (!connection) {
+      return;
+    }
+
     await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
     handleSpeakingEvent({ client, speechOptions, connection });
   });
