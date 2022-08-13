@@ -8,8 +8,7 @@ import {
 import { Client } from "discord.js";
 import { Transform } from "stream";
 import { SpeechOptions } from "../speechOptions";
-import { createVoiceMessage } from "../voiceMessage";
-import VoiceMessage from "../voiceMessage";
+import VoiceMessage, { createVoiceMessage } from "../voiceMessage";
 
 declare module "discord.js" {
   interface ClientEvents {
