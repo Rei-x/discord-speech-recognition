@@ -1,3 +1,4 @@
+import { OpusEncoder } from "@discordjs/opus";
 import {
   EndBehaviorType,
   entersState,
@@ -5,9 +6,23 @@ import {
   VoiceConnectionStatus,
 } from "@discordjs/voice";
 import { Client } from "discord.js";
-import prism from "prism-media";
+import { Transform } from "stream";
 import { SpeechOptions } from "../speechOptions";
 import { createVoiceMessage } from "../voiceMessage";
+
+class OpusDecodingStream extends Transform {
+  encoder: OpusEncoder;
+
+  constructor() {
+    super();
+    this.encoder = new OpusEncoder(48000, 2);
+  }
+
+  _transform(data: any, encoding: any, callback: () => void) {
+    this.push(this.encoder.decode(data));
+    callback();
+  }
+}
 
 /**
  * Starts listening on connection and emits `speech` event when someone stops speaking
@@ -33,14 +48,13 @@ const handleSpeakingEvent = ({
       const opusStream = receiver.subscribe(userId, {
         end: {
           behavior: EndBehaviorType.AfterSilence,
-          duration: 100,
+          duration: 1000,
         },
       });
+
       const bufferData: Uint8Array[] = [];
       opusStream
-        .pipe(
-          new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 })
-        )
+        .pipe(new OpusDecodingStream())
         .on("data", (data: Uint8Array) => {
           bufferData.push(data);
         });
@@ -56,6 +70,7 @@ const handleSpeakingEvent = ({
           connection,
           speechOptions,
         });
+
         if (voiceMessage) client.emit("speech", voiceMessage);
       });
     }

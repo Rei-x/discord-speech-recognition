@@ -12,7 +12,7 @@ export interface WitaiOptions {
  * @returns
  */
 const formatWitaiResponse = (text: string): Array<MessageResponse> => {
-  const fixedCommas = text.replaceAll("\n}\r\n", "},");
+  const fixedCommas = text.replace(/\n}\r\n/g, "},");
   const wrappedInArray = `[${fixedCommas}]`;
   return JSON.parse(wrappedInArray);
 };
@@ -48,9 +48,9 @@ export async function resolveSpeechWithWitai(
   const key = options?.key;
   if (!key) throw new Error("wit.ai API key wasn't specified.");
 
-  const contenttype =
+  const contentType =
     "audio/raw;encoding=signed-integer;bits=16;rate=48k;endian=little";
-  const output = await extractSpeechText(key, audioBuffer, contenttype);
+  const output = await extractSpeechText(key, audioBuffer, contentType);
 
   return output.text;
 }
