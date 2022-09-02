@@ -19,7 +19,8 @@ chai.use(chaiSpies);
 describe("Speech options", () => {
   let tm: TestManager;
 
-  beforeEach(async () => {
+  beforeEach(async function before() {
+    this.timeout(6000);
     tm = new TestManager(config.BOT_TOKEN, config.TESTBOT_TOKEN);
     await tm.loginClients();
     await tm.setTestVoiceChannel(config.GUILD_ID);
