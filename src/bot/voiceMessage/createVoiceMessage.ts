@@ -4,10 +4,10 @@ import {
   convertStereoToMono,
   getDurationFromMonoBuffer,
 } from "../../utils/audio";
-import { SpeechOptions } from "../speechOptions";
+import { SpeechOptions, SpeechRecognition } from "../speechOptions";
 import VoiceMessage from "../voiceMessage";
 
-export default async ({
+export default async <T extends SpeechRecognition>({
   client,
   bufferData,
   user,
@@ -18,7 +18,7 @@ export default async ({
   bufferData: Uint8Array[];
   user: User;
   connection: VoiceConnection;
-  speechOptions: SpeechOptions;
+  speechOptions: SpeechOptions<T>;
 }): Promise<VoiceMessage | undefined> => {
   if (!connection.joinConfig.channelId) return undefined;
 
