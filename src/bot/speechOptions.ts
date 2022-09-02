@@ -1,3 +1,4 @@
+import { User } from "discord.js";
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 
 /**
@@ -11,6 +12,7 @@ export interface SpeechRecognition {
 
 export interface CommonSpeechOptions {
   group?: string;
+  shouldProcessSpeech?: (user: User) => boolean;
   /**
    * Defaults to true
    */

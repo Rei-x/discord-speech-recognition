@@ -51,6 +51,11 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
       // Shouldn't proceed if user is undefined, some checks will fail even if they shouldn't
       if (!user) return;
 
+      const { shouldProcessSpeech } = speechOptions;
+      if (shouldProcessSpeech && !shouldProcessSpeech(user)) {
+        return;
+      }
+
       if (speechOptions.ignoreBots && user?.bot) {
         return;
       }
