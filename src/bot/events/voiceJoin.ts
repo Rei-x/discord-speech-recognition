@@ -1,6 +1,6 @@
 import { getVoiceConnection, VoiceConnection } from "@discordjs/voice";
 import { Client } from "discord.js";
-import { SpeechOptions } from "../speechOptions";
+import { SpeechOptions, SpeechRecognition } from "../speechOptions";
 
 declare module "discord.js" {
   interface ClientEvents {
@@ -28,7 +28,10 @@ const isSpeechHandlerAttachedToConnection = (
   );
 };
 
-export default (client: Client, speechOptions: SpeechOptions): void => {
+export default <T extends SpeechRecognition>(
+  client: Client,
+  speechOptions: SpeechOptions<T>
+): void => {
   client.on("voiceStateUpdate", (_old, newVoiceState) => {
     if (!newVoiceState.channel) return;
 

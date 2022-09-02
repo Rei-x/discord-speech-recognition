@@ -7,7 +7,7 @@ import {
 } from "@discordjs/voice";
 import { Client } from "discord.js";
 import { Transform } from "stream";
-import { SpeechOptions } from "../speechOptions";
+import { SpeechOptions, SpeechRecognition } from "../speechOptions";
 import VoiceMessage, { createVoiceMessage } from "../voiceMessage";
 
 declare module "discord.js" {
@@ -34,19 +34,29 @@ class OpusDecodingStream extends Transform {
  * Starts listening on connection and emits `speech` event when someone stops speaking
  * @param connection Connection to listen
  */
-const handleSpeakingEvent = ({
+const handleSpeakingEvent = <T extends SpeechRecognition>({
   client,
   connection,
   speechOptions,
 }: {
   client: Client;
   connection: VoiceConnection;
-  speechOptions: SpeechOptions;
+  speechOptions: SpeechOptions<T>;
 }) => {
   connection.receiver.speaking.on(
     "start",
     function handleSpeechEventOnConnectionReceiver(userId) {
-      if (speechOptions.ignoreBots && client.users.cache.get(userId)?.bot) {
+      const user = client.users.cache.get(userId);
+
+      // Shouldn't proceed if user is undefined, some checks will fail even if they shouldn't
+      if (!user) return;
+
+      const { shouldProcessSpeech } = speechOptions;
+      if (shouldProcessSpeech && !shouldProcessSpeech(user)) {
+        return;
+      }
+
+      if (speechOptions.ignoreBots && user?.bot) {
         return;
       }
 
@@ -66,9 +76,6 @@ const handleSpeakingEvent = ({
         });
 
       opusStream.on("end", async () => {
-        const user = client.users.cache.get(userId);
-        if (!user) return;
-
         const voiceMessage = await createVoiceMessage({
           client,
           bufferData,
@@ -86,7 +93,10 @@ const handleSpeakingEvent = ({
 /**
  * Enables `speech` event on Client, which is called whenever someone stops speaking
  */
-export default (client: Client, speechOptions: SpeechOptions): void => {
+export default <T extends SpeechRecognition>(
+  client: Client,
+  speechOptions: SpeechOptions<T>
+): void => {
   client.on("voiceJoin", async (connection) => {
     if (!connection) {
       return;

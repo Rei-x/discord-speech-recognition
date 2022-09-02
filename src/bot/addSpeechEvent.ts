@@ -1,7 +1,7 @@
 import { Client } from "discord.js";
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { setupSpeechEvent, setupVoiceJoinEvent } from "./events";
-import { SpeechOptions } from "./speechOptions";
+import { SpeechOptions, SpeechRecognition } from "./speechOptions";
 
 /**
  * Main function, use this to add new events to present [discord.Client](https://discord.js.org/#/docs/main/stable/class/Client)
@@ -19,12 +19,18 @@ import { SpeechOptions } from "./speechOptions";
  * addSpeechEvent(client, { lang: "pl-PL" });
  * ```
  */
-export const addSpeechEvent = (client: Client, options?: SpeechOptions) => {
-  const defaultOptions: SpeechOptions = {
-    lang: "en-US",
-    speechRecognition: resolveSpeechWithGoogleSpeechV2,
-    ignoreBots: true,
-  };
+export const addSpeechEvent = <
+  T extends SpeechRecognition = typeof resolveSpeechWithGoogleSpeechV2
+>(
+  client: Client,
+  options?: SpeechOptions<T>
+) => {
+  const defaultOptions: SpeechOptions<typeof resolveSpeechWithGoogleSpeechV2> =
+    {
+      lang: "en-US",
+      speechRecognition: resolveSpeechWithGoogleSpeechV2,
+      ignoreBots: true,
+    };
   const speechOptions = { ...defaultOptions, ...options };
 
   setupVoiceJoinEvent(client, speechOptions);
