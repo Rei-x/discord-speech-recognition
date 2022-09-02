@@ -1,12 +1,12 @@
-const { Client, Intents } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 const { joinVoiceChannel } = require("@discordjs/voice");
 const { addSpeechEvent } = require("discord-speech-recognition");
 
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MESSAGES,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds,
   ],
 });
 addSpeechEvent(client);
@@ -24,6 +24,7 @@ client.on("messageCreate", (msg) => {
 });
 
 client.on("speech", (msg) => {
+  // If bot didn't recognize speech, content will be empty
   if (!msg.content) return;
 
   msg.author.send(msg.content);
