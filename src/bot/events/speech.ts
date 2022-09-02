@@ -54,7 +54,7 @@ const handleSpeakingEvent = ({
       const opusStream = receiver.subscribe(userId, {
         end: {
           behavior: EndBehaviorType.AfterSilence,
-          duration: 1000,
+          duration: 300,
         },
       });
 
