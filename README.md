@@ -41,6 +41,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent,
       ],
 });
 addSpeechEvent(client);
@@ -70,3 +71,7 @@ client.on("ready", () => {
 
 client.login("token");
 ```
+
+You need to enable message content for this example, so it can react to messages in chat.
+
+![](https://i.imgur.com/06doHXE.png)

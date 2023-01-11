@@ -7,6 +7,7 @@ const client = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.MessageContent,
   ],
 });
 addSpeechEvent(client);
