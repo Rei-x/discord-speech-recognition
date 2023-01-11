@@ -79,10 +79,10 @@ describe("Test bot", () => {
         });
 
         const testConnection = await tm.connectToVoiceChannel("testClient");
-        testConnection.subscribe(player);
         await tm.connectToVoiceChannel("client");
 
         player.play(resource);
+        testConnection.subscribe(player);
 
         return new Promise((resolve, reject) => {
           tm.client.on("speech", (msg: VoiceMessage) => {
