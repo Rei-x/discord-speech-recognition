@@ -12,14 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: npm i
-      - run: npm run lint && npm run coverage
+          node-version: "16.x"
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run coverage
         env:
-            BOT_TOKEN: ${{secrets.BOT_TOKEN}}
-            TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
-            GUILD_ID: ${{secrets.GUILD_ID}}
-            WITAI_KEY: ${{secrets.WITAI_KEY}}
+          BOT_TOKEN: ${{secrets.BOT_TOKEN}}
+          TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
+          GUILD_ID: ${{secrets.GUILD_ID}}
+          WITAI_KEY: ${{secrets.WITAI_KEY}}
