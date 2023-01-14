@@ -33,6 +33,11 @@ export default class VoiceMessage {
    */
   duration: number;
 
+  private static audioBufferFormat = {
+    sampleRate: 48000,
+    channels: 1,
+  };
+
   /**
    * PCM mono 48k audio data
    */
@@ -78,12 +83,25 @@ export default class VoiceMessage {
    * @param filename File directory, for example: `./test.wav`
    */
   saveToFile(filename: string): void {
-    const outputFile = new wav.FileWriter(filename, {
-      sampleRate: 48000,
-      channels: 1,
-    });
+    const outputFile = new wav.FileWriter(
+      filename,
+      VoiceMessage.audioBufferFormat
+    );
     outputFile.write(this.audioBuffer);
     outputFile.end();
+  }
+
+  /**
+   * Useful if you want to send audio to some API or play it in browser
+   * @returns Wav audio encoded to base64
+   */
+  getWavEncodedToBase64Audio() {
+    const writer = new wav.Writer(VoiceMessage.audioBufferFormat);
+
+    writer.write(this.audioBuffer);
+    writer.end();
+
+    return writer.read(writer.readableLength).toString("base64");
   }
 
   get member(): GuildMember | undefined {
