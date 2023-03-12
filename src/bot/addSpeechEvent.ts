@@ -30,6 +30,7 @@ export const addSpeechEvent = <
       lang: "en-US",
       speechRecognition: resolveSpeechWithGoogleSpeechV2,
       ignoreBots: true,
+      minimalVoiceMessageDuration: 1,
     };
   const speechOptions = { ...defaultOptions, ...options };
 

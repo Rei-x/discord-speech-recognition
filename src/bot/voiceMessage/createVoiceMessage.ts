@@ -25,7 +25,10 @@ export default async <T extends SpeechRecognition>({
   const stereoBuffer = Buffer.concat(bufferData);
   const monoBuffer = convertStereoToMono(stereoBuffer);
   const duration = getDurationFromMonoBuffer(monoBuffer);
-  if (duration < 1 || duration > 19) return undefined;
+
+  const minimalDuration = speechOptions.minimalVoiceMessageDuration ?? 1;
+
+  if (duration < minimalDuration || duration > 19) return undefined;
 
   let content: string | undefined;
   let error: Error | undefined;
