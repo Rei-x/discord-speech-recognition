@@ -16,8 +16,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
-      - uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
       - run: npm ci
       - run: npm run lint
       - run: npm run coverage
