@@ -9,10 +9,11 @@ import { Client } from "discord.js";
 import { Transform } from "stream";
 import { SpeechOptions, SpeechRecognition } from "../speechOptions";
 import VoiceMessage, { createVoiceMessage } from "../voiceMessage";
+import { SpeechEvents } from "../../events";
 
 declare module "discord.js" {
   interface ClientEvents {
-    speech: [voiceMessage: VoiceMessage];
+    [SpeechEvents.speech]: [voiceMessage: VoiceMessage];
   }
 }
 
@@ -84,7 +85,7 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
           speechOptions,
         });
 
-        if (voiceMessage) client.emit("speech", voiceMessage);
+        if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
       });
     }
   );
@@ -97,7 +98,7 @@ export default <T extends SpeechRecognition>(
   client: Client,
   speechOptions: SpeechOptions<T>
 ): void => {
-  client.on("voiceJoin", async (connection) => {
+  client.on(SpeechEvents.voiceJoin, async (connection) => {
     if (!connection) {
       return;
     }

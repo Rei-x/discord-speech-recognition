@@ -8,7 +8,7 @@ import chaiAsPromised from "chai-as-promised";
 import chaiSpies from "chai-spies";
 import { User } from "discord.js";
 import { once } from "events";
-import { addSpeechEvent } from "../src";
+import { addSpeechEvent, SpeechEvents } from "../src";
 import config from "./config";
 import sampleData from "./sampleData";
 import { TestManager } from "./utils";
@@ -46,7 +46,7 @@ describe("Speech options", () => {
     player.play(resource);
 
     return new Promise<void>((resolve, reject) => {
-      once(tm.client, "speech").then(() =>
+      once(tm.client, SpeechEvents.speech).then(() =>
         reject("Bot recognized speech with ignoreBots set to true")
       );
       setTimeout(() => resolve(), 4000);
@@ -62,11 +62,12 @@ describe("Speech options", () => {
     };
     const spiedShouldProcessSpeech = chai.spy(shouldProcessSpeech);
 
-    addSpeechEvent(tm.client, {
+    const speechOptions = addSpeechEvent(tm.client, {
       group: "client",
       ignoreBots: false,
-      shouldProcessSpeech: spiedShouldProcessSpeech,
     });
+
+    speechOptions.shouldProcessSpeech = spiedShouldProcessSpeech;
 
     const player = createAudioPlayer();
     const resource = createAudioResource(sampleData.normal.url, {
@@ -80,7 +81,7 @@ describe("Speech options", () => {
     player.play(resource);
 
     return new Promise<void>((resolve, reject) => {
-      tm.client.once("speech", () => {
+      tm.client.once(SpeechEvents.speech, () => {
         try {
           chai.expect(spiedShouldProcessSpeech).to.have.been.called();
         } catch (e) {

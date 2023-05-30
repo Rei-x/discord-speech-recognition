@@ -16,16 +16,19 @@ export interface CommonSpeechOptions {
    * https://discordjs.github.io/voice/interfaces/joinvoicechanneloptions.html#group
    */
   group?: string;
+
   /**
    * Custom handler to decide whether to recognize speech
    * @param user The user who spoke
    * @returns
    */
   shouldProcessSpeech?: (user: User) => boolean;
+
   /**
    * Defaults to true
    */
   ignoreBots?: boolean;
+
   /**
    * Minimal length of voice message that will be processed
    */

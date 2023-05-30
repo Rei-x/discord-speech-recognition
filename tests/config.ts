@@ -8,14 +8,14 @@ class EnvError extends Error {
   }
 }
 
-const getConfigObject = (variables: Array<string>) => {
+const getConfigObject = <T extends string>(variables: Array<T>) => {
   const config: Record<string, string> = {};
   variables.forEach((variable) => {
     const value = process.env[variable];
     if (!value) throw new EnvError(variable);
     config[variable] = value;
   });
-  return config;
+  return config as Record<T, string>;
 };
 
 export default getConfigObject([

@@ -10,6 +10,7 @@ import {
   addSpeechEvent,
   resolveSpeechWithGoogleSpeechV2,
   resolveSpeechWithWitai,
+  SpeechEvents,
   SpeechOptions,
   VoiceMessage,
 } from "../src/index";
@@ -66,7 +67,7 @@ describe("Test bot", () => {
 
       it("Voice join event", async () => {
         const voiceConnection = tm.connectToVoiceChannel("client");
-        await once(tm.client, "voiceJoin");
+        await once(tm.client, SpeechEvents.voiceJoin);
         (await voiceConnection).destroy();
       });
 
@@ -85,7 +86,7 @@ describe("Test bot", () => {
         testConnection.subscribe(player);
 
         return new Promise((resolve, reject) => {
-          tm.client.on("speech", (msg: VoiceMessage) => {
+          tm.client.on(SpeechEvents.speech, (msg: VoiceMessage) => {
             try {
               expect(msg.content?.toLowerCase()).to.contain(
                 sampleData.normal.text
