@@ -5,7 +5,7 @@ export {
   CommonSpeechOptions,
 } from "./bot/speechOptions";
 export { default as VoiceMessage } from "./bot/voiceMessage";
-export { speech, voiceJoin } from "./events";
+export { SpeechEvents } from "./events";
 export {
   GoogleSpeechV2Options,
   resolveSpeechWithGoogleSpeechV2,

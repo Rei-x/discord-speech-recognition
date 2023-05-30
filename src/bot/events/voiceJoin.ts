@@ -1,6 +1,7 @@
 import { getVoiceConnection, VoiceConnection } from "@discordjs/voice";
 import { Client } from "discord.js";
 import { SpeechOptions, SpeechRecognition } from "../speechOptions";
+import { SpeechEvents } from "../../events";
 
 declare module "discord.js" {
   interface ClientEvents {
@@ -70,7 +71,7 @@ export default <T extends SpeechRecognition>(
       fixStoppingAfterOneMinute(connection);
 
       client.emit(
-        "voiceJoin",
+        SpeechEvents.voiceJoin,
         getVoiceConnection(newVoiceState.channel.guild.id, speechOptions.group)
       );
     }

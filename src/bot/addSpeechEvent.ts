@@ -16,7 +16,8 @@ import { SpeechOptions, SpeechRecognition } from "./speechOptions";
  * const client = new Client({
  *   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
  * });
- * addSpeechEvent(client, { lang: "pl-PL" });
+ * // You can modify speechOptions object to change how things work
+ * const speechOptions = addSpeechEvent(client, { lang: "pl-PL" });
  * ```
  */
 export const addSpeechEvent = <
@@ -36,4 +37,6 @@ export const addSpeechEvent = <
 
   setupVoiceJoinEvent(client, speechOptions);
   setupSpeechEvent(client, speechOptions);
+
+  return speechOptions;
 };
