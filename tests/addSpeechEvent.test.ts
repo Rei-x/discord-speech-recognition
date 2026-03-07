@@ -57,7 +57,7 @@ describe("Test bot", () => {
         addSpeechEvent(tm.client, {
           group: "client",
           ignoreBots: false,
-          ...speechOptions,
+          ...speechOption,
         });
 
         return tm.setTestVoiceChannel(config.GUILD_ID);
