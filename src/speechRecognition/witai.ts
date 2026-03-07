@@ -20,7 +20,7 @@ const formatWitaiResponse = (text: string): Array<MessageResponse> => {
 async function extractSpeechText(
   key: string,
   audioBuffer: Buffer,
-  contenttype: string
+  contenttype: string,
 ): Promise<MessageResponse> {
   const response = await fetch("https://api.wit.ai/speech", {
     method: "post",
@@ -43,7 +43,7 @@ async function extractSpeechText(
 
 export async function resolveSpeechWithWitai(
   audioBuffer: Buffer,
-  options?: WitaiOptions
+  options?: WitaiOptions,
 ): Promise<string> {
   const key = options?.key;
   if (!key) throw new Error("wit.ai API key wasn't specified.");

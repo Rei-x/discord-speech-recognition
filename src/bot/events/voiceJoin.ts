@@ -20,12 +20,15 @@ declare module "discord.js" {
  * @returns
  */
 const isSpeechHandlerAttachedToConnection = (
-  connection: VoiceConnection
+  connection: VoiceConnection,
 ): boolean => {
   return Boolean(
-    connection.receiver.speaking
+    (connection.receiver.speaking as any)
       .listeners("start")
-      .find((func) => func.name === "handleSpeechEventOnConnectionReceiver")
+      .find(
+        (func: { name: string }) =>
+          func.name === "handleSpeechEventOnConnectionReceiver",
+      ),
   );
 };
 
@@ -38,7 +41,7 @@ const isSpeechHandlerAttachedToConnection = (
 const fixStoppingAfterOneMinute = (connection: VoiceConnection) => {
   const networkStateChangeHandler = (
     oldNetworkState: any,
-    newNetworkState: any
+    newNetworkState: any,
   ) => {
     const newUdp = Reflect.get(newNetworkState, "udp");
     clearInterval(newUdp?.keepAliveInterval);
@@ -47,32 +50,32 @@ const fixStoppingAfterOneMinute = (connection: VoiceConnection) => {
   connection.on("stateChange", (oldState, newState) => {
     Reflect.get(oldState, "networking")?.off(
       "stateChange",
-      networkStateChangeHandler
+      networkStateChangeHandler,
     );
     Reflect.get(newState, "networking")?.on(
       "stateChange",
-      networkStateChangeHandler
+      networkStateChangeHandler,
     );
   });
 };
 
 export default <T extends SpeechRecognition>(
   client: Client,
-  speechOptions: SpeechOptions<T>
+  speechOptions: SpeechOptions<T>,
 ): void => {
   client.on("voiceStateUpdate", (_old, newVoiceState) => {
     if (!newVoiceState.channel) return;
 
     const connection = getVoiceConnection(
       newVoiceState.channel.guild.id,
-      speechOptions.group
+      speechOptions.group,
     );
     if (connection && !isSpeechHandlerAttachedToConnection(connection)) {
       fixStoppingAfterOneMinute(connection);
 
       client.emit(
         SpeechEvents.voiceJoin,
-        getVoiceConnection(newVoiceState.channel.guild.id, speechOptions.group)
+        getVoiceConnection(newVoiceState.channel.guild.id, speechOptions.group),
       );
     }
   });

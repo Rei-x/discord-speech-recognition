@@ -13,17 +13,17 @@ const createWritable = (buffs: Uint8Array[]): Writable =>
 
 const writeAudioDataToWavStream = (
   stream: fs.ReadStream,
-  streamReader: Writable
+  streamReader: Writable,
 ): void => {
   const reader = new wav.Reader();
   reader.on("format", () => {
-    reader.pipe(streamReader);
+    reader.pipe(streamReader as unknown as NodeJS.WritableStream);
   });
-  stream.pipe(reader);
+  stream.pipe(reader as unknown as NodeJS.WritableStream);
 };
 
 export const readFileToAudioBuffer = async (
-  filename: fs.PathLike
+  filename: fs.PathLike,
 ): Promise<Buffer> => {
   const file = fs.createReadStream(filename);
 
@@ -57,9 +57,9 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
 
   const reader = new wav.Reader();
   reader.on("format", () => {
-    reader.pipe(pcmDataStream);
+    reader.pipe(pcmDataStream as unknown as NodeJS.WritableStream);
   });
-  response.data.pipe(reader);
+  response.data.pipe(reader as unknown as NodeJS.WritableStream);
 
   return new Promise((resolve) => {
     pcmDataStream.on("finish", () => {

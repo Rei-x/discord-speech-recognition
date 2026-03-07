@@ -85,7 +85,7 @@ export default class VoiceMessage {
   saveToFile(filename: string): void {
     const outputFile = new wav.FileWriter(
       filename,
-      VoiceMessage.audioBufferFormat
+      VoiceMessage.audioBufferFormat,
     );
     outputFile.write(this.audioBuffer);
     outputFile.end();

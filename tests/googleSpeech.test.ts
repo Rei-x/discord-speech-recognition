@@ -1,45 +1,36 @@
-/* eslint-disable no-invalid-this */
-import chai, { expect } from "chai";
-import chaiAsPRomised from "chai-as-promised";
+import { expect, describe, it } from "vitest";
 import { resolveSpeechWithGoogleSpeechV2 } from "../src/index";
 import sampleData from "./sampleData";
-import { wavUrlToBuffer } from "./utils";
-
-chai.use(chaiAsPRomised);
+import { readFileToAudioBuffer } from "./utils";
 
 describe("Google Speech V2 test", () => {
-  it("Speech recognition", async function speechRecognition() {
-    this.timeout(16000);
-
-    const audioBuffer = await wavUrlToBuffer(sampleData.normal.url);
+  it("Speech recognition", { timeout: 16000 }, async () => {
+    const audioBuffer = await readFileToAudioBuffer(sampleData.normal.path);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer);
-    expect(response.toLowerCase()).to.contain(sampleData.normal.text);
+    expect(response.toLowerCase()).toContain(sampleData.normal.text);
   });
 
-  it("Censor bad words", async function () {
-    this.timeout(16000);
-
-    const audioBuffer = await wavUrlToBuffer(sampleData.vulgarism.url);
+  it("Censor bad words", { timeout: 16000 }, async () => {
+    const audioBuffer = await readFileToAudioBuffer(sampleData.vulgarism.path);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer, {
       profanityFilter: true,
     });
     const censoredText = sampleData.vulgarism.text.replace("fuck", "f***");
-    expect(response.toLowerCase()).to.contain(censoredText);
+    expect(response.toLowerCase()).toContain(censoredText);
   });
 
-  it("Disabling profanity filter ", async function () {
-    this.timeout(16000);
-
-    const audioBuffer = await wavUrlToBuffer(sampleData.vulgarism.url);
+  it("Disabling profanity filter", { timeout: 16000 }, async () => {
+    const audioBuffer = await readFileToAudioBuffer(sampleData.vulgarism.path);
     const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer, {
       profanityFilter: false,
     });
-    expect(response.toLowerCase()).to.contain(sampleData.vulgarism.text);
+    expect(response.toLowerCase()).toContain(sampleData.vulgarism.text);
   });
 
-  it("Bad request data throws error", () => {
+  it("Bad request data throws error", async () => {
     const badAudioBuffer = Buffer.from("test");
-    return expect(resolveSpeechWithGoogleSpeechV2(badAudioBuffer)).to.be
-      .rejected;
+    await expect(
+      resolveSpeechWithGoogleSpeechV2(badAudioBuffer),
+    ).rejects.toThrow();
   });
 });

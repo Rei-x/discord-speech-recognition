@@ -35,7 +35,7 @@ export default async <T extends SpeechRecognition>({
   try {
     content = await speechOptions.speechRecognition?.(
       monoBuffer,
-      speechOptions
+      speechOptions,
     );
   } catch (e) {
     error = e as Error;

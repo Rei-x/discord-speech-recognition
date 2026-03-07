@@ -66,13 +66,13 @@ export default class TestManager {
 
   async disconnectFromVoiceChannel(
     guildID: string,
-    type: "client" | "testClient"
+    type: "client" | "testClient",
   ) {
     getVoiceConnection(guildID, type)?.destroy();
   }
 
   async connectToVoiceChannel(
-    type: "client" | "testClient"
+    type: "client" | "testClient",
   ): Promise<VoiceConnection> {
     let channel;
     if (type === "client") channel = this.clientVoiceChannel;
@@ -84,22 +84,40 @@ export default class TestManager {
       group: type,
       channelId: channel.id,
       guildId: channel.guild.id,
-      adapterCreator: channel.guild.voiceAdapterCreator,
+      adapterCreator: channel.guild.voiceAdapterCreator as any,
       selfDeaf: false,
     });
 
     try {
-      await entersState(connection, VoiceConnectionStatus.Ready, 30e3);
+      await entersState(connection, VoiceConnectionStatus.Ready, 10e3);
       return connection;
     } catch (error) {
+      try {
+        connection.destroy();
+      } catch (_) {
+        // ignore destroy errors
+      }
+      throw new Error(
+        `Failed to connect to voice channel: ${
+          error instanceof Error ? error.message : error
+        }`,
+      );
+    }
+  }
+
+  async canConnectToVoice(): Promise<boolean> {
+    try {
+      const connection = await this.connectToVoiceChannel("testClient");
       connection.destroy();
-      throw error;
+      return true;
+    } catch {
+      return false;
     }
   }
 
   private async waitForClientToBeReady(client: Client) {
     return new Promise<void>((resolve) =>
-      client.once("ready", () => resolve())
+      client.once("ready", () => resolve()),
     );
   }
 
@@ -115,14 +133,14 @@ export default class TestManager {
       this.testVoiceChannel = await this.createTestChannel(guild);
     }
     this.clientVoiceChannel = (await this.client.channels.fetch(
-      this.testVoiceChannel.id
+      this.testVoiceChannel.id,
     )) as VoiceChannel;
   }
 
   private getTestChannel(guild: Guild): VoiceChannel | undefined {
     return guild.channels.cache.find(
       (channel) =>
-        channel.type === ChannelType.GuildVoice && channel.name === "test"
+        channel.type === ChannelType.GuildVoice && channel.name === "test",
     ) as VoiceChannel;
   }
 

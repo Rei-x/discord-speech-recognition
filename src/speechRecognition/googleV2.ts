@@ -17,7 +17,7 @@ export interface GoogleSpeechV2Options {
  * @returns Request config for {@link resolveSpeechWithGoogleSpeechV2}
  */
 function getGoogleRequestOptions(
-  options?: GoogleSpeechV2Options
+  options?: GoogleSpeechV2Options,
 ): AxiosRequestConfig {
   let key = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw";
   let lang = "en-US";
@@ -58,7 +58,7 @@ function getGoogleRequestOptions(
  */
 export async function resolveSpeechWithGoogleSpeechV2(
   audioBuffer: Buffer,
-  options: GoogleSpeechV2Options = { lang: "en-US" }
+  options: GoogleSpeechV2Options = { lang: "en-US" },
 ): Promise<string> {
   const requestOptions = getGoogleRequestOptions(options);
   requestOptions.data = audioBuffer;

@@ -71,23 +71,25 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
 
       const bufferData: Uint8Array[] = [];
       opusStream
-        .pipe(new OpusDecodingStream())
+        .pipe(new OpusDecodingStream() as unknown as NodeJS.WritableStream)
         .on("data", (data: Uint8Array) => {
           bufferData.push(data);
         });
 
-      opusStream.on("end", async () => {
-        const voiceMessage = await createVoiceMessage({
-          client,
-          bufferData,
-          user,
-          connection,
-          speechOptions,
-        });
+      opusStream.on("end", () => {
+        void (async () => {
+          const voiceMessage = await createVoiceMessage({
+            client,
+            bufferData,
+            user,
+            connection,
+            speechOptions,
+          });
 
-        if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
+          if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
+        })();
       });
-    }
+    },
   );
 };
 
@@ -96,14 +98,15 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
  */
 export default <T extends SpeechRecognition>(
   client: Client,
-  speechOptions: SpeechOptions<T>
+  speechOptions: SpeechOptions<T>,
 ): void => {
-  client.on(SpeechEvents.voiceJoin, async (connection) => {
+  client.on(SpeechEvents.voiceJoin, (connection) => {
     if (!connection) {
       return;
     }
 
-    await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
-    handleSpeakingEvent({ client, speechOptions, connection });
+    void entersState(connection, VoiceConnectionStatus.Ready, 20e3).then(() => {
+      handleSpeakingEvent({ client, speechOptions, connection });
+    });
   });
 };

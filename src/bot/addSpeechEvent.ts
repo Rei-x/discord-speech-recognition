@@ -21,10 +21,10 @@ import { SpeechOptions, SpeechRecognition } from "./speechOptions";
  * ```
  */
 export const addSpeechEvent = <
-  T extends SpeechRecognition = typeof resolveSpeechWithGoogleSpeechV2
+  T extends SpeechRecognition = typeof resolveSpeechWithGoogleSpeechV2,
 >(
   client: Client,
-  options?: SpeechOptions<T>
+  options?: SpeechOptions<T>,
 ) => {
   const defaultOptions: SpeechOptions<typeof resolveSpeechWithGoogleSpeechV2> =
     {

@@ -41,7 +41,7 @@ export interface CommonSpeechOptions {
  * Usage: `SpeechOptions<typeof *your speech recognition function here*>`
  */
 export type SpeechOptions<
-  T extends SpeechRecognition = typeof resolveSpeechWithGoogleSpeechV2
+  T extends SpeechRecognition = typeof resolveSpeechWithGoogleSpeechV2,
 > = CommonSpeechOptions & {
   speechRecognition?: T;
 } & Parameters<T>[1];

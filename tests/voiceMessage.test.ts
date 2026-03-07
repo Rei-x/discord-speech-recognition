@@ -1,11 +1,10 @@
-/* eslint-disable no-invalid-this */
-import { expect } from "chai";
+import { expect, beforeAll, describe, it } from "vitest";
 import fs from "fs";
 import { VoiceMessage } from "../src";
 import { getDurationFromMonoBuffer } from "../src/utils/audio";
 import sampleData from "./sampleData";
 import wav from "wav";
-import { readFileToAudioBuffer, wavUrlToBuffer } from "./utils";
+import { readFileToAudioBuffer } from "./utils";
 
 describe("Voice message", () => {
   const mockData = undefined as never;
@@ -15,10 +14,8 @@ describe("Voice message", () => {
   let audioBuffer: Buffer;
   let voiceMessage: VoiceMessage;
 
-  before(async function before() {
-    this.timeout(6000);
-
-    audioBuffer = await wavUrlToBuffer(sampleData.normal.url);
+  beforeAll(async () => {
+    audioBuffer = await readFileToAudioBuffer(sampleData.normal.path);
     voiceMessage = new VoiceMessage({
       client: mockData,
       data: {
@@ -29,20 +26,18 @@ describe("Voice message", () => {
       },
       channel: mockData,
     });
-  });
+  }, 6000);
 
-  it("Save to .wav file", async function saveToWav() {
-    this.timeout(4000);
-
+  it("Save to .wav file", { timeout: 4000 }, async () => {
     voiceMessage.saveToFile(filename);
     expect(fs.existsSync(filename));
     const audioBufferFromFile = await readFileToAudioBuffer(filename);
-    expect(audioBuffer.toString()).to.be.equal(audioBufferFromFile.toString());
+    expect(audioBuffer.toString()).toBe(audioBufferFromFile.toString());
     fs.unlinkSync(filename);
   });
 
   it("Duration", () => {
-    expect(voiceMessage.duration.toPrecision(3)).to.be.equal("2.09");
+    expect(voiceMessage.duration.toPrecision(3)).toBe("2.21");
   });
 
   it("Get base64 audio", async () => {
@@ -54,8 +49,8 @@ describe("Voice message", () => {
 
     const checkFormat = new Promise<void>((resolve) => {
       reader.on("format", (format) => {
-        expect(format.sampleRate).to.be.equal(48000);
-        expect(format.channels).to.be.equal(1);
+        expect(format.sampleRate).toBe(48000);
+        expect(format.channels).toBe(1);
         resolve();
       });
     });
@@ -66,8 +61,8 @@ describe("Voice message", () => {
     const pcmAudio = reader.read(reader.readableLength);
 
     const duration = getDurationFromMonoBuffer(pcmAudio);
-    expect(voiceMessage.duration).to.be.equal(duration);
+    expect(voiceMessage.duration).toBe(duration);
 
-    expect(pcmAudio.toString()).to.be.equal(audioBuffer.toString());
+    expect(pcmAudio.toString()).toBe(audioBuffer.toString());
   });
 });
