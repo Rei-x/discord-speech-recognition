@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { MessageResponse } from "node-wit";
 
 export interface WitaiOptions {

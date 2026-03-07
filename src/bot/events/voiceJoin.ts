@@ -32,33 +32,6 @@ const isSpeechHandlerAttachedToConnection = (
   );
 };
 
-/**
- * https://github.com/discordjs/discord.js/issues/9185
- *
- * Workaround from this comment: https://github.com/discordjs/discord.js/issues/9185#issuecomment-1459083216
- * @param connection
- */
-const fixStoppingAfterOneMinute = (connection: VoiceConnection) => {
-  const networkStateChangeHandler = (
-    oldNetworkState: any,
-    newNetworkState: any,
-  ) => {
-    const newUdp = Reflect.get(newNetworkState, "udp");
-    clearInterval(newUdp?.keepAliveInterval);
-  };
-
-  connection.on("stateChange", (oldState, newState) => {
-    Reflect.get(oldState, "networking")?.off(
-      "stateChange",
-      networkStateChangeHandler,
-    );
-    Reflect.get(newState, "networking")?.on(
-      "stateChange",
-      networkStateChangeHandler,
-    );
-  });
-};
-
 export default <T extends SpeechRecognition>(
   client: Client,
   speechOptions: SpeechOptions<T>,
@@ -71,8 +44,6 @@ export default <T extends SpeechRecognition>(
       speechOptions.group,
     );
     if (connection && !isSpeechHandlerAttachedToConnection(connection)) {
-      fixStoppingAfterOneMinute(connection);
-
       client.emit(
         SpeechEvents.voiceJoin,
         getVoiceConnection(newVoiceState.channel.guild.id, speechOptions.group),

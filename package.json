@@ -2,8 +2,21 @@
   "name": "discord-speech-recognition",
   "version": "3.4.1",
   "description": "Extension for making discord speech recognition bots.",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
   "scripts": {
     "dev": "nodemon dist/index.js",
     "watch": "tsdown --watch",
@@ -34,7 +47,7 @@
   },
   "homepage": "https://discordsr.netlify.app/",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "peerDependencies": {
     "@discordjs/opus": "^0.10.0",
@@ -43,15 +56,12 @@
   },
   "dependencies": {
     "@snazzah/davey": "^0.1.10",
-    "axios": "^1.13.6",
-    "node-fetch": "^2.7.0",
     "prism-media": "^2.0.0-alpha.0",
     "wav": "^1.0.2"
   },
   "devDependencies": {
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^25.3.5",
-    "@types/node-fetch": "^2.6.13",
     "@types/node-wit": "^6.1.0",
     "@types/wav": "^1.0.4",
     "@vitest/coverage-v8": "^4.0.18",

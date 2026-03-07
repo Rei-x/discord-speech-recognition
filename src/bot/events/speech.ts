@@ -14,6 +14,7 @@ import { SpeechEvents } from "../../events";
 declare module "discord.js" {
   interface ClientEvents {
     [SpeechEvents.speech]: [voiceMessage: VoiceMessage];
+    [SpeechEvents.audioStreamError]: [error: Error];
   }
 }
 
@@ -44,9 +45,13 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
   connection: VoiceConnection;
   speechOptions: SpeechOptions<T>;
 }) => {
+  const activeListeners = new Set<string>();
+
   connection.receiver.speaking.on(
     "start",
     function handleSpeechEventOnConnectionReceiver(userId) {
+      if (connection.joinConfig.selfDeaf) return;
+
       const user = client.users.cache.get(userId);
 
       // Shouldn't proceed if user is undefined, some checks will fail even if they shouldn't
@@ -57,9 +62,12 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
         return;
       }
 
-      if (speechOptions.ignoreBots && user?.bot) {
+      if (speechOptions.ignoreBots && user.bot) {
         return;
       }
+
+      if (activeListeners.has(userId)) return;
+      activeListeners.add(userId);
 
       const { receiver } = connection;
       const opusStream = receiver.subscribe(userId, {
@@ -70,13 +78,22 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
       });
 
       const bufferData: Uint8Array[] = [];
+      const decodingStream = new OpusDecodingStream();
+
+      const cleanup = () => {
+        activeListeners.delete(userId);
+        decodingStream.destroy();
+        if (!opusStream.destroyed) opusStream.destroy();
+      };
+
       opusStream
-        .pipe(new OpusDecodingStream() as unknown as NodeJS.WritableStream)
+        .pipe(decodingStream as unknown as NodeJS.WritableStream)
         .on("data", (data: Uint8Array) => {
           bufferData.push(data);
         });
 
       opusStream.on("end", () => {
+        cleanup();
         void (async () => {
           const voiceMessage = await createVoiceMessage({
             client,
@@ -89,8 +106,27 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
           if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
         })();
       });
+
+      opusStream.on("error", (err) => {
+        cleanup();
+        client.emit(SpeechEvents.audioStreamError, err);
+      });
     },
   );
+
+  connection.on(VoiceConnectionStatus.Disconnected, () => {
+    activeListeners.clear();
+    if (connection.state.status === VoiceConnectionStatus.Destroyed) return;
+    try {
+      if (connection.rejoinAttempts < 5) {
+        connection.rejoin();
+      } else {
+        connection.destroy();
+      }
+    } catch {
+      // Connection may already be destroyed
+    }
+  });
 };
 
 /**

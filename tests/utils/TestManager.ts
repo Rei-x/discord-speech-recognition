@@ -73,6 +73,7 @@ export default class TestManager {
 
   async connectToVoiceChannel(
     type: "client" | "testClient",
+    retries = 3,
   ): Promise<VoiceConnection> {
     let channel;
     if (type === "client") channel = this.clientVoiceChannel;
@@ -80,29 +81,34 @@ export default class TestManager {
 
     if (!channel) throw new Error("Voice channel doesn't exist");
 
-    const connection = joinVoiceChannel({
-      group: type,
-      channelId: channel.id,
-      guildId: channel.guild.id,
-      adapterCreator: channel.guild.voiceAdapterCreator as any,
-      selfDeaf: false,
-    });
+    let lastError: unknown;
+    for (let attempt = 0; attempt < retries; attempt++) {
+      const connection = joinVoiceChannel({
+        group: type,
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator as any,
+        selfDeaf: false,
+      });
 
-    try {
-      await entersState(connection, VoiceConnectionStatus.Ready, 10e3);
-      return connection;
-    } catch (error) {
       try {
-        connection.destroy();
-      } catch (_) {
-        // ignore destroy errors
+        await entersState(connection, VoiceConnectionStatus.Ready, 10e3);
+        return connection;
+      } catch (error) {
+        lastError = error;
+        try {
+          connection.destroy();
+        } catch (_) {
+          // ignore destroy errors
+        }
       }
-      throw new Error(
-        `Failed to connect to voice channel: ${
-          error instanceof Error ? error.message : error
-        }`,
-      );
     }
+
+    throw new Error(
+      `Failed to connect to voice channel after ${retries} attempts: ${
+        lastError instanceof Error ? lastError.message : lastError
+      }`,
+    );
   }
 
   async canConnectToVoice(): Promise<boolean> {
