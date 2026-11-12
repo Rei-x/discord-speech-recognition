@@ -5,7 +5,7 @@ import {
   getDurationFromMonoBuffer,
 } from "../../utils/audio";
 import { SpeechOptions, SpeechRecognition } from "../speechOptions";
-import VoiceMessage from "../voiceMessage";
+import VoiceMessage from "./VoiceMessage";
 
 export default async <T extends SpeechRecognition>({
   client,
@@ -13,12 +13,14 @@ export default async <T extends SpeechRecognition>({
   user,
   connection,
   speechOptions,
+  startTimestamp,
 }: {
   client: Client;
   bufferData: Uint8Array[];
   user: User;
   connection: VoiceConnection;
   speechOptions: SpeechOptions<T>;
+  startTimestamp?: number;
 }): Promise<VoiceMessage | undefined> => {
   if (!connection.joinConfig.channelId) return undefined;
 
@@ -28,7 +30,7 @@ export default async <T extends SpeechRecognition>({
 
   const minimalDuration = speechOptions.minimalVoiceMessageDuration ?? 1;
 
-  if (duration < minimalDuration || duration > 19) return undefined;
+  if (duration < minimalDuration) return undefined;
 
   let content: string | undefined;
   let error: Error | undefined;
@@ -36,9 +38,10 @@ export default async <T extends SpeechRecognition>({
     content = await speechOptions.speechRecognition?.(
       monoBuffer,
       speechOptions,
+      { user, connection },
     );
   } catch (e) {
-    error = e as Error;
+    error = e instanceof Error ? e : new Error(String(e));
   }
 
   const channel = client.channels.cache.get(connection.joinConfig.channelId);
@@ -49,7 +52,8 @@ export default async <T extends SpeechRecognition>({
     data: {
       author: user,
       duration,
-      audioBuffer: stereoBuffer,
+      startTimestamp,
+      audioBuffer: monoBuffer,
       content,
       error,
       connection,

@@ -2,9 +2,10 @@ import { Client } from "discord.js";
 import { resolveSpeechWithGoogleSpeechV2 } from "../speechRecognition/googleV2";
 import { setupSpeechEvent, setupVoiceJoinEvent } from "./events";
 import { SpeechOptions, SpeechRecognition } from "./speechOptions";
+import { assertOpusLibraryInstalled } from "../utils/opus";
 
 /**
- * Main function, use this to add new events to present [discord.Client](https://discord.js.org/#/docs/main/stable/class/Client)
+ * Main function, use this to add new events to present [discord.Client](https://discord.js.org/docs/packages/discord.js/main/Client:Class)
  *
  * Defaults uses `en-US` language and google speech v2 api with generic key, that should be used for personal or testing purposes only, as it may be revoked by Google at any time.\
  * You can obtain your own API key here <http://www.chromium.org/developers/how-tos/api-keys>.\
@@ -14,7 +15,7 @@ import { SpeechOptions, SpeechRecognition } from "./speechOptions";
  * Example usage:
  * ```javascript
  * const client = new Client({
- *   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
+ *   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
  * });
  * // You can modify speechOptions object to change how things work
  * const speechOptions = addSpeechEvent(client, { lang: "pl-PL" });
@@ -34,6 +35,8 @@ export const addSpeechEvent = <
       minimalVoiceMessageDuration: 1,
     };
   const speechOptions = { ...defaultOptions, ...options };
+
+  assertOpusLibraryInstalled();
 
   setupVoiceJoinEvent(client, speechOptions);
   setupSpeechEvent(client, speechOptions);

@@ -8,19 +8,45 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["22.x", "24.x"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: "22.x"
+          node-version: ${{ matrix.node-version }}
+          cache: npm
       - run: npm ci
       - run: npm run lint
-      - run: npm run coverage
+      - run: npm run build
+      - run: npm run test:unit
+
+  integration:
+    # Secrets aren't available in pull requests from forks
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    needs: test
+    runs-on: ubuntu-latest
+    # Tests use the same two bots, so only one run can use them at a time
+    concurrency:
+      group: integration-tests
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.x"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
         env:
-          BOT_TOKEN: ${{secrets.BOT_TOKEN}}
-          TESTBOT_TOKEN: ${{secrets.TESTBOT_TOKEN}}
-          GUILD_ID: ${{secrets.GUILD_ID}}
-          WITAI_KEY: ${{secrets.WITAI_KEY}}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          TESTBOT_TOKEN: ${{ secrets.TESTBOT_TOKEN }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          WITAI_KEY: ${{ secrets.WITAI_KEY }}

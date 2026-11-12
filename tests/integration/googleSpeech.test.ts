@@ -1,7 +1,7 @@
 import { expect, describe, it } from "vitest";
-import { resolveSpeechWithGoogleSpeechV2 } from "../src/index";
-import sampleData from "./sampleData";
-import { readFileToAudioBuffer } from "./utils";
+import { resolveSpeechWithGoogleSpeechV2 } from "../../src";
+import sampleData from "../sampleData";
+import { readFileToAudioBuffer } from "../utils";
 
 describe("Google Speech V2 test", () => {
   it("Speech recognition", { timeout: 16000 }, async () => {
@@ -27,10 +27,23 @@ describe("Google Speech V2 test", () => {
     expect(response.toLowerCase()).toContain(sampleData.vulgarism.text);
   });
 
-  it("Bad request data throws error", async () => {
-    const badAudioBuffer = Buffer.from("test");
+  it("Returns empty string when there is no speech", async () => {
+    const silence = Buffer.alloc(48000 * 2);
+    await expect(resolveSpeechWithGoogleSpeechV2(silence)).resolves.toBe("");
+  });
+
+  it("Other languages", { timeout: 16000 }, async () => {
+    const audioBuffer = await readFileToAudioBuffer(sampleData.normal.path);
+    const response = await resolveSpeechWithGoogleSpeechV2(audioBuffer, {
+      lang: "en-GB",
+    });
+    expect(response.toLowerCase()).toContain(sampleData.normal.text);
+  });
+
+  it("Invalid key throws error", async () => {
+    const audioBuffer = await readFileToAudioBuffer(sampleData.normal.path);
     await expect(
-      resolveSpeechWithGoogleSpeechV2(badAudioBuffer),
-    ).rejects.toThrow();
+      resolveSpeechWithGoogleSpeechV2(audioBuffer, { key: "invalid" }),
+    ).rejects.toThrow("Google speech api error: 403");
   });
 });

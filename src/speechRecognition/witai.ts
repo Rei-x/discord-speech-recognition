@@ -1,45 +1,55 @@
-import { MessageResponse } from "node-wit";
-
 export interface WitaiOptions {
+  /**
+   * Server access token of your wit.ai app
+   */
   key?: string;
 }
 
+interface WitaiSpeechResponse {
+  text?: string;
+}
+
 /**
- * There is an issue with wit.ai response from /speech endpoint, which returns multiple root objects. You can check the docs here: https://wit.ai/docs/http/20210928/#post__speech_link
- * This function converts response text to valid json by wrapping it in array and fixing commas.
+ * wit.ai streams the response from /speech endpoint as multiple JSON objects one after another, which isn't a valid JSON. You can check the docs here: https://wit.ai/docs/http/20240304/#post__speech_link
+ * This function splits the response text into separate objects and parses each of them.
  * @param text
  * @returns
  */
-const formatWitaiResponse = (text: string): Array<MessageResponse> => {
-  const fixedCommas = text.replace(/\n}\r\n/g, "},");
-  const wrappedInArray = `[${fixedCommas}]`;
-  return JSON.parse(wrappedInArray);
+const parseWitaiResponse = (text: string): Array<WitaiSpeechResponse> => {
+  const chunks: Array<WitaiSpeechResponse> = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+
+    if (inString) {
+      if (char === "\\") i += 1;
+      else if (char === '"') inString = false;
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+      if (depth === 0 && start !== -1) {
+        chunks.push(JSON.parse(text.slice(start, i + 1)));
+        start = -1;
+      }
+    }
+  }
+
+  return chunks;
 };
 
-async function extractSpeechText(
-  key: string,
-  audioBuffer: Buffer,
-  contenttype: string,
-): Promise<MessageResponse> {
-  const response = await fetch("https://api.wit.ai/speech", {
-    method: "post",
-    body: audioBuffer,
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-type": contenttype,
-    },
-  });
-  if (response.status !== 200)
-    throw new Error(`Api error, code: ${response.status}`);
-
-  const data = formatWitaiResponse(await response.text());
-
-  const latestMessage = data.at(-1);
-  if (!latestMessage) throw new Error(`Invalid API response`);
-
-  return latestMessage;
-}
-
+/**
+ * Performs speech recognition using the wit.ai API, voice messages can be up to 20 seconds long
+ * @param audioBuffer PCM mono audio with 48kHz
+ * @param options
+ * @returns Recognized text from speech
+ */
 export async function resolveSpeechWithWitai(
   audioBuffer: Buffer,
   options?: WitaiOptions,
@@ -47,9 +57,27 @@ export async function resolveSpeechWithWitai(
   const key = options?.key;
   if (!key) throw new Error("wit.ai API key wasn't specified.");
 
-  const contentType =
-    "audio/raw;encoding=signed-integer;bits=16;rate=48k;endian=little";
-  const output = await extractSpeechText(key, audioBuffer, contentType);
+  const response = await fetch("https://api.wit.ai/speech", {
+    method: "POST",
+    body: new Uint8Array(audioBuffer),
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type":
+        "audio/raw;encoding=signed-integer;bits=16;rate=48k;endian=little",
+    },
+  });
+  if (response.status !== 200)
+    throw new Error(`Api error, code: ${response.status}`);
 
-  return output.text;
+  let chunks: Array<WitaiSpeechResponse>;
+  try {
+    chunks = parseWitaiResponse(await response.text());
+  } catch {
+    throw new Error("Invalid API response");
+  }
+
+  const latestMessage = chunks.at(-1);
+  if (!latestMessage) throw new Error("Invalid API response");
+
+  return latestMessage.text ?? "";
 }

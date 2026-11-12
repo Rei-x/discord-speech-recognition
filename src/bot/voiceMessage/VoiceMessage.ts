@@ -7,7 +7,8 @@ import {
   User,
   VoiceChannel,
 } from "discord.js";
-import wav from "wav";
+import { writeFileSync } from "fs";
+import { encodeWav } from "../../utils/audio";
 
 export interface VoiceMessageData {
   duration: number;
@@ -16,13 +17,14 @@ export interface VoiceMessageData {
   error?: Error;
   connection: VoiceConnection;
   author: User;
+  startTimestamp?: number;
 }
 
 export default class VoiceMessage {
   channel: VoiceChannel | StageChannel;
 
   /**
-   * Speech to text translation
+   * Speech to text translation, empty if nothing was recognized
    */
   content?: string;
 
@@ -33,27 +35,32 @@ export default class VoiceMessage {
    */
   duration: number;
 
+  /**
+   * When the user started speaking, in milliseconds since the Unix epoch
+   */
+  startTimestamp: number;
+
   private static audioBufferFormat = {
     sampleRate: 48000,
     channels: 1,
   };
 
   /**
-   * PCM mono 48k audio data
+   * PCM mono 16-bit audio data with 48kHz sample rate
    */
   audioBuffer: Buffer;
 
   client: Client;
 
   /**
-   * If there was any error during handling speech event, this will be set
+   * If speech recognition function threw an error, it will be set here
    */
   error?: Error;
 
   connection: VoiceConnection;
 
   /**
-   * Voice message, it is emited `speech` event
+   * Voice message, it is emitted with `speech` event
    * @param client
    * @param data
    * @param channel
@@ -74,8 +81,17 @@ export default class VoiceMessage {
     this.audioBuffer = data.audioBuffer;
     this.connection = data.connection;
     this.duration = data.duration;
+    this.startTimestamp =
+      data.startTimestamp ?? Date.now() - Math.round(data.duration * 1000);
     this.content = data?.content;
     this.error = data?.error;
+  }
+
+  /**
+   * @returns Audio in .wav format
+   */
+  toWav(): Buffer {
+    return encodeWav(this.audioBuffer, VoiceMessage.audioBufferFormat);
   }
 
   /**
@@ -83,25 +99,15 @@ export default class VoiceMessage {
    * @param filename File directory, for example: `./test.wav`
    */
   saveToFile(filename: string): void {
-    const outputFile = new wav.FileWriter(
-      filename,
-      VoiceMessage.audioBufferFormat,
-    );
-    outputFile.write(this.audioBuffer);
-    outputFile.end();
+    writeFileSync(filename, this.toWav());
   }
 
   /**
    * Useful if you want to send audio to some API or play it in browser
    * @returns Wav audio encoded to base64
    */
-  getWavEncodedToBase64Audio() {
-    const writer = new wav.Writer(VoiceMessage.audioBufferFormat);
-
-    writer.write(this.audioBuffer);
-    writer.end();
-
-    return writer.read(writer.readableLength).toString("base64");
+  getWavEncodedToBase64Audio(): string {
+    return this.toWav().toString("base64");
   }
 
   get member(): GuildMember | undefined {
