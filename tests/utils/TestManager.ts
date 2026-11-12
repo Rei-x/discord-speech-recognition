@@ -1,19 +1,32 @@
 import {
+  AudioPlayerStatus,
+  createAudioPlayer,
+  createAudioResource,
   entersState,
   getVoiceConnection,
   joinVoiceChannel,
+  StreamType,
   VoiceConnection,
   VoiceConnectionStatus,
 } from "@discordjs/voice";
 import {
   Client,
   ClientOptions,
+  Events,
   Guild,
   VoiceChannel,
   GatewayIntentBits,
   ChannelType,
 } from "discord.js";
+import fs from "fs";
+import { setTimeout as sleep } from "timers/promises";
 
+type ClientType = "client" | "testClient";
+
+/**
+ * Manages two real bots: `client` is the bot with speech recognition
+ * and `testClient` is the bot that talks on the voice channel.
+ */
 export default class TestManager {
   testClient: Client;
 
@@ -45,34 +58,53 @@ export default class TestManager {
     };
   }
 
-  resetClients() {
+  async resetClients() {
+    await this.destroyClients();
     this.client = new Client(TestManager.clientOptions);
     this.testClient = new Client(TestManager.clientOptions);
   }
 
+  async destroyClients() {
+    await Promise.all([this.client.destroy(), this.testClient.destroy()]);
+  }
+
   async loginClients() {
-    this.client.login(this.clientToken);
-    this.testClient.login(this.testToken);
     const isClientReady = this.waitForClientToBeReady(this.client);
     const isTestClientReady = this.waitForClientToBeReady(this.testClient);
+    await Promise.all([
+      this.client.login(this.clientToken),
+      this.testClient.login(this.testToken),
+    ]);
     return Promise.all([isClientReady, isTestClientReady]);
   }
 
   async setTestVoiceChannel(guildID: string): Promise<void> {
     const guild = this.getGuildFromID(guildID);
-    if (!guild) return;
+    if (!guild) throw new Error(`Test bot isn't in the guild ${guildID}`);
     await this.setOrCreateTestVoiceChannels(guild);
   }
 
-  async disconnectFromVoiceChannel(
-    guildID: string,
-    type: "client" | "testClient",
-  ) {
-    getVoiceConnection(guildID, type)?.destroy();
+  /**
+   * Disconnects both bots and gives Discord a moment, joining right after leaving is unreliable
+   */
+  async leaveVoiceChannels(guildID: string): Promise<void> {
+    this.disconnectFromVoiceChannel(guildID, "client");
+    this.disconnectFromVoiceChannel(guildID, "testClient");
+    await sleep(1500);
+  }
+
+  disconnectFromVoiceChannel(guildID: string, type: ClientType) {
+    const connection = getVoiceConnection(guildID, type);
+    if (
+      connection &&
+      connection.state.status !== VoiceConnectionStatus.Destroyed
+    ) {
+      connection.destroy();
+    }
   }
 
   async connectToVoiceChannel(
-    type: "client" | "testClient",
+    type: ClientType,
     retries = 3,
   ): Promise<VoiceConnection> {
     let channel;
@@ -87,18 +119,18 @@ export default class TestManager {
         group: type,
         channelId: channel.id,
         guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator as any,
+        adapterCreator: channel.guild.voiceAdapterCreator,
         selfDeaf: false,
       });
 
       try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 10e3);
+        await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
         return connection;
       } catch (error) {
         lastError = error;
         try {
           connection.destroy();
-        } catch (_) {
+        } catch {
           // ignore destroy errors
         }
       }
@@ -106,24 +138,34 @@ export default class TestManager {
 
     throw new Error(
       `Failed to connect to voice channel after ${retries} attempts: ${
-        lastError instanceof Error ? lastError.message : lastError
+        lastError instanceof Error ? lastError.message : String(lastError)
       }`,
     );
   }
 
-  async canConnectToVoice(): Promise<boolean> {
+  /**
+   * Plays audio file on the connection and waits until it ends
+   */
+  async playAudio(connection: VoiceConnection, path: string): Promise<void> {
+    const player = createAudioPlayer();
+    const resource = createAudioResource(fs.createReadStream(path), {
+      inputType: StreamType.Arbitrary,
+    });
+    const subscription = connection.subscribe(player);
+    player.play(resource);
+
     try {
-      const connection = await this.connectToVoiceChannel("testClient");
-      connection.destroy();
-      return true;
-    } catch {
-      return false;
+      await entersState(player, AudioPlayerStatus.Playing, 10e3);
+      await entersState(player, AudioPlayerStatus.Idle, 60e3);
+    } finally {
+      subscription?.unsubscribe();
+      player.stop(true);
     }
   }
 
   private async waitForClientToBeReady(client: Client) {
     return new Promise<void>((resolve) =>
-      client.once("ready", () => resolve()),
+      client.once(Events.ClientReady, () => resolve()),
     );
   }
 
@@ -145,9 +187,9 @@ export default class TestManager {
 
   private getTestChannel(guild: Guild): VoiceChannel | undefined {
     return guild.channels.cache.find(
-      (channel) =>
+      (channel): channel is VoiceChannel =>
         channel.type === ChannelType.GuildVoice && channel.name === "test",
-    ) as VoiceChannel;
+    );
   }
 
   private async createTestChannel(guild: Guild): Promise<VoiceChannel> {

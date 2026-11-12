@@ -1,0 +1,7 @@
+# Docs site (https://discordsr.netlify.app)
+[build]
+  command = "npm run doc"
+  publish = "generated_docs"
+
+[build.environment]
+  NODE_VERSION = "24"

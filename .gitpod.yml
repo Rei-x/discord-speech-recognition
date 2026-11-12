@@ -1,5 +1,0 @@
-image:
-  file: .gitpod.Dockerfile
-tasks:
-  - name: Install dependencies
-    init: npm i

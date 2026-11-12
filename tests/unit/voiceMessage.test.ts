@@ -1,15 +1,17 @@
 import { expect, beforeAll, describe, it } from "vitest";
 import fs from "fs";
-import { VoiceMessage } from "../src";
-import { getDurationFromMonoBuffer } from "../src/utils/audio";
-import sampleData from "./sampleData";
+import os from "os";
+import path from "path";
+import { VoiceMessage } from "../../src";
+import { getDurationFromMonoBuffer } from "../../src/utils/audio";
+import sampleData from "../sampleData";
 import wav from "wav";
-import { readFileToAudioBuffer } from "./utils";
+import { readFileToAudioBuffer } from "../utils";
 
 describe("Voice message", () => {
   const mockData = undefined as never;
 
-  const filename = "./test.wav";
+  const filename = path.join(os.tmpdir(), `dsr-test-${process.pid}.wav`);
 
   let audioBuffer: Buffer;
   let voiceMessage: VoiceMessage;
@@ -30,10 +32,10 @@ describe("Voice message", () => {
 
   it("Save to .wav file", { timeout: 4000 }, async () => {
     voiceMessage.saveToFile(filename);
-    expect(fs.existsSync(filename));
+    expect(fs.existsSync(filename)).toBe(true);
     const audioBufferFromFile = await readFileToAudioBuffer(filename);
-    expect(audioBuffer.toString()).toBe(audioBufferFromFile.toString());
     fs.unlinkSync(filename);
+    expect(audioBufferFromFile.equals(audioBuffer)).toBe(true);
   });
 
   it("Duration", () => {
@@ -63,6 +65,7 @@ describe("Voice message", () => {
     const duration = getDurationFromMonoBuffer(pcmAudio);
     expect(voiceMessage.duration).toBe(duration);
 
-    expect(pcmAudio.toString()).toBe(audioBuffer.toString());
+    expect(pcmAudio.equals(audioBuffer)).toBe(true);
+    expect(decodedWavAudio.equals(voiceMessage.toWav())).toBe(true);
   });
 });

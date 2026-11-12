@@ -1,10 +1,10 @@
 import { expect, describe, it } from "vitest";
-import { resolveSpeechWithWitai } from "../src/index";
-import config from "./config";
-import sampleData from "./sampleData";
-import { readFileToAudioBuffer } from "./utils";
+import { resolveSpeechWithWitai } from "../../src";
+import config, { hasWitaiConfig } from "../config";
+import sampleData from "../sampleData";
+import { readFileToAudioBuffer } from "../utils";
 
-describe("wit.ai test", { timeout: 16000 }, () => {
+describe.skipIf(!hasWitaiConfig)("wit.ai test", { timeout: 16000 }, () => {
   it("Speech recognition", async () => {
     const audioBuffer = await readFileToAudioBuffer(sampleData.normal.path);
     const response = await resolveSpeechWithWitai(audioBuffer, {

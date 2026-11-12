@@ -1,19 +1,20 @@
 {
   "name": "simplebot",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "Simple bot with speech recognition",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "dependencies": {
-    "@discordjs/opus": "^0.8.0",
-    "@discordjs/voice": "^0.11.0",
+    "@discordjs/opus": "^0.11.0",
+    "@discordjs/voice": "^0.19.2",
     "discord-speech-recognition": "latest",
-    "discord.js": "^14.3.0",
-    "sodium": "^3.0.2"
+    "discord.js": "^14.28.1"
   }
 }

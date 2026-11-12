@@ -1,7 +1,6 @@
-import { Writable } from "stream";
+import { Readable, Writable } from "stream";
 import fs from "fs";
 import wav from "wav";
-import axios from "axios";
 
 const createWritable = (buffs: Uint8Array[]): Writable =>
   new Writable({
@@ -17,9 +16,9 @@ const writeAudioDataToWavStream = (
 ): void => {
   const reader = new wav.Reader();
   reader.on("format", () => {
-    reader.pipe(streamReader as unknown as NodeJS.WritableStream);
+    reader.pipe(streamReader);
   });
-  stream.pipe(reader as unknown as NodeJS.WritableStream);
+  stream.pipe(reader);
 };
 
 export const readFileToAudioBuffer = async (
@@ -41,11 +40,11 @@ export const readFileToAudioBuffer = async (
 };
 
 export async function wavUrlToBuffer(url: string): Promise<Buffer> {
-  const response = await axios({
-    url,
-    method: "GET",
-    responseType: "stream",
-  });
+  const response = await fetch(url);
+  if (!response.ok || !response.body) {
+    throw new Error(`Failed to download ${url}: ${response.status}`);
+  }
+  const body = Readable.fromWeb(response.body);
   const buffs: Uint8Array[] = [];
   const pcmDataStream = new Writable({
     write(chunk, _encoding, callback) {
@@ -57,9 +56,9 @@ export async function wavUrlToBuffer(url: string): Promise<Buffer> {
 
   const reader = new wav.Reader();
   reader.on("format", () => {
-    reader.pipe(pcmDataStream as unknown as NodeJS.WritableStream);
+    reader.pipe(pcmDataStream);
   });
-  response.data.pipe(reader as unknown as NodeJS.WritableStream);
+  body.pipe(reader);
 
   return new Promise((resolve) => {
     pcmDataStream.on("finish", () => {

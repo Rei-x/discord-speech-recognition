@@ -3,6 +3,5 @@
   "out": "generated_docs",
   "name": "Discord Speech Recognition",
   "excludePrivate": true,
-  "includes": "./examples",
-  "readme": "docs/README.md"
+  "readme": "README.md"
 }

@@ -1,15 +1,18 @@
-import { OpusEncoder } from "@discordjs/opus";
 import {
   EndBehaviorType,
   entersState,
   VoiceConnection,
   VoiceConnectionStatus,
 } from "@discordjs/voice";
-import { Client } from "discord.js";
-import { Transform } from "stream";
+import { Client, User } from "discord.js";
 import { SpeechOptions, SpeechRecognition } from "../speechOptions";
 import VoiceMessage, { createVoiceMessage } from "../voiceMessage";
 import { SpeechEvents } from "../../events";
+import { OpusDecodingStream } from "../../utils/opus";
+import {
+  markConnectionAsAttached,
+  unmarkConnectionAsAttached,
+} from "./voiceJoin";
 
 declare module "discord.js" {
   interface ClientEvents {
@@ -18,19 +21,22 @@ declare module "discord.js" {
   }
 }
 
-class OpusDecodingStream extends Transform {
-  encoder: OpusEncoder;
+const DEFAULT_MAXIMAL_DURATION = 19;
+const DEFAULT_SILENCE_DURATION = 300;
+/** 16-bit stereo PCM with 48kHz sample rate */
+const DECODED_BYTES_PER_SECOND = 48000 * 2 * 2;
 
-  constructor() {
-    super();
-    this.encoder = new OpusEncoder(48000, 2);
-  }
-
-  _transform(data: any, encoding: any, callback: () => void) {
-    this.push(this.encoder.decode(data));
-    callback();
-  }
-}
+const shouldListenTo = <T extends SpeechRecognition>(
+  user: User,
+  connection: VoiceConnection,
+  speechOptions: SpeechOptions<T>,
+): boolean => {
+  const { shouldProcessSpeech } = speechOptions;
+  if (shouldProcessSpeech && !shouldProcessSpeech(user, connection))
+    return false;
+  if (speechOptions.ignoreBots && user.bot) return false;
+  return true;
+};
 
 /**
  * Starts listening on connection and emits `speech` event when someone stops speaking
@@ -45,88 +51,117 @@ const handleSpeakingEvent = <T extends SpeechRecognition>({
   connection: VoiceConnection;
   speechOptions: SpeechOptions<T>;
 }) => {
+  const { receiver } = connection;
   const activeListeners = new Set<string>();
 
-  connection.receiver.speaking.on(
-    "start",
-    function handleSpeechEventOnConnectionReceiver(userId) {
-      if (connection.joinConfig.selfDeaf) return;
+  const emitError = (error: unknown) => {
+    client.emit(
+      SpeechEvents.audioStreamError,
+      error instanceof Error ? error : new Error(String(error)),
+    );
+  };
 
-      const user = client.users.cache.get(userId);
+  /**
+   * Records the user until they go silent or the voice message gets too long
+   */
+  const listen = (userId: string) => {
+    if (connection.joinConfig.selfDeaf) return;
+    if (activeListeners.has(userId)) return;
 
-      // Shouldn't proceed if user is undefined, some checks will fail even if they shouldn't
-      if (!user) return;
+    const cachedUser = client.users.cache.get(userId);
+    if (cachedUser && !shouldListenTo(cachedUser, connection, speechOptions))
+      return;
 
-      const { shouldProcessSpeech } = speechOptions;
-      if (shouldProcessSpeech && !shouldProcessSpeech(user)) {
+    activeListeners.add(userId);
+    const startTimestamp = Date.now();
+
+    const opusStream = receiver.subscribe(userId, {
+      end: {
+        behavior: EndBehaviorType.AfterSilence,
+        duration: speechOptions.silenceDuration ?? DEFAULT_SILENCE_DURATION,
+      },
+    });
+    const decodingStream = new OpusDecodingStream();
+
+    const maximalBytes =
+      (speechOptions.maximalVoiceMessageDuration ?? DEFAULT_MAXIMAL_DURATION) *
+      DECODED_BYTES_PER_SECOND;
+    const bufferData: Buffer[] = [];
+    let bufferedBytes = 0;
+    let isCollecting = true;
+
+    let isFinished = false;
+    const finish = (error?: unknown) => {
+      if (isFinished) return;
+      isFinished = true;
+      isCollecting = false;
+
+      opusStream.unpipe(decodingStream);
+      if (!decodingStream.destroyed) decodingStream.destroy();
+      if (!opusStream.destroyed) opusStream.destroy();
+
+      if (error) {
+        emitError(error);
         return;
       }
 
-      if (speechOptions.ignoreBots && user.bot) {
-        return;
-      }
+      void (async () => {
+        const user =
+          cachedUser ??
+          (await client.users.fetch(userId).catch(() => undefined));
+        if (!user) return;
+        if (!cachedUser && !shouldListenTo(user, connection, speechOptions))
+          return;
 
-      if (activeListeners.has(userId)) return;
-      activeListeners.add(userId);
-
-      const { receiver } = connection;
-      const opusStream = receiver.subscribe(userId, {
-        end: {
-          behavior: EndBehaviorType.AfterSilence,
-          duration: 300,
-        },
-      });
-
-      const bufferData: Uint8Array[] = [];
-      const decodingStream = new OpusDecodingStream();
-
-      const cleanup = () => {
-        activeListeners.delete(userId);
-        decodingStream.destroy();
-        if (!opusStream.destroyed) opusStream.destroy();
-      };
-
-      opusStream
-        .pipe(decodingStream as unknown as NodeJS.WritableStream)
-        .on("data", (data: Uint8Array) => {
-          bufferData.push(data);
+        const voiceMessage = await createVoiceMessage({
+          client,
+          bufferData,
+          user,
+          connection,
+          speechOptions,
+          startTimestamp,
         });
 
-      opusStream.on("end", () => {
-        cleanup();
-        void (async () => {
-          const voiceMessage = await createVoiceMessage({
-            client,
-            bufferData,
-            user,
-            connection,
-            speechOptions,
-          });
+        if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
+      })().catch(emitError);
+    };
 
-          if (voiceMessage) client.emit(SpeechEvents.speech, voiceMessage);
-        })();
-      });
+    decodingStream.on("data", (data: Buffer) => {
+      if (!isCollecting) return;
+      bufferData.push(data);
+      bufferedBytes += data.length;
 
-      opusStream.on("error", (err) => {
-        cleanup();
-        client.emit(SpeechEvents.audioStreamError, err);
-      });
-    },
-  );
-
-  connection.on(VoiceConnectionStatus.Disconnected, () => {
-    activeListeners.clear();
-    if (connection.state.status === VoiceConnectionStatus.Destroyed) return;
-    try {
-      if (connection.rejoinAttempts < 5) {
-        connection.rejoin();
-      } else {
-        connection.destroy();
+      // Speech recognition can't handle more, the rest goes to the next voice message
+      if (bufferedBytes >= maximalBytes) {
+        isCollecting = false;
+        opusStream.destroy();
       }
-    } catch {
-      // Connection may already be destroyed
-    }
-  });
+    });
+
+    // Wait for the decoder, so the last packets aren't lost
+    decodingStream.once("end", () => finish());
+    decodingStream.once("error", (error) => finish(error));
+    opusStream.once("error", (error) => finish(error));
+    // Stream that was destroyed never emits `end`, so `close` is the only reliable event
+    opusStream.once("close", () => {
+      activeListeners.delete(userId);
+      if (!decodingStream.writableEnded && !decodingStream.destroyed) {
+        decodingStream.end();
+      }
+
+      // `start` is emitted only after a pause in transmission, so users that
+      // are still transmitting have to be picked up here
+      const isConnectionAlive =
+        connection.state.status !== VoiceConnectionStatus.Destroyed;
+      if (isConnectionAlive && receiver.speaking.users.has(userId)) {
+        listen(userId);
+      }
+    });
+
+    opusStream.pipe(decodingStream);
+  };
+
+  receiver.speaking.on("start", listen);
 };
 
 /**
@@ -137,12 +172,17 @@ export default <T extends SpeechRecognition>(
   speechOptions: SpeechOptions<T>,
 ): void => {
   client.on(SpeechEvents.voiceJoin, (connection) => {
-    if (!connection) {
-      return;
-    }
+    if (!connection) return;
+    if (!markConnectionAsAttached(client, connection)) return;
 
-    void entersState(connection, VoiceConnectionStatus.Ready, 20e3).then(() => {
-      handleSpeakingEvent({ client, speechOptions, connection });
-    });
+    entersState(connection, VoiceConnectionStatus.Ready, 20e3).then(
+      () => {
+        handleSpeakingEvent({ client, speechOptions, connection });
+      },
+      () => {
+        // Connection didn't become ready, it will be picked up again on the next voice state update
+        unmarkConnectionAsAttached(client, connection);
+      },
+    );
   });
 };

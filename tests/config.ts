@@ -1,26 +1,21 @@
-import dotenv from "dotenv";
+import { existsSync } from "fs";
 
-dotenv.config();
+if (existsSync(".env")) process.loadEnvFile(".env");
 
-class EnvError extends Error {
-  constructor(envVariableName: string) {
-    super(`${envVariableName} wasn't specified in environmental variables.`);
-  }
-}
+const discordVariables = ["BOT_TOKEN", "TESTBOT_TOKEN", "GUILD_ID"] as const;
 
-const getConfigObject = <T extends string>(variables: Array<T>) => {
-  const config: Record<string, string> = {};
-  variables.forEach((variable) => {
-    const value = process.env[variable];
-    if (!value) throw new EnvError(variable);
-    config[variable] = value;
-  });
-  return config as Record<T, string>;
+const config = {
+  BOT_TOKEN: process.env.BOT_TOKEN ?? "",
+  TESTBOT_TOKEN: process.env.TESTBOT_TOKEN ?? "",
+  GUILD_ID: process.env.GUILD_ID ?? "",
+  WITAI_KEY: process.env.WITAI_KEY ?? "",
 };
 
-export default getConfigObject([
-  "BOT_TOKEN",
-  "TESTBOT_TOKEN",
-  "GUILD_ID",
-  "WITAI_KEY",
-]);
+/**
+ * Tests that use real Discord bots are skipped when tokens aren't specified, check .env.example
+ */
+export const hasDiscordConfig = discordVariables.every((name) => config[name]);
+
+export const hasWitaiConfig = Boolean(config.WITAI_KEY);
+
+export default config;
